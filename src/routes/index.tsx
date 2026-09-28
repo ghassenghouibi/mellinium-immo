@@ -1,24 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { EstateExperience } from "@/components/estate/EstateExperience";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Villa Soléa — Maison Azur" },
+      { name: "description", content: "Visite immersive d’une villa méditerranéenne d’exception à Saint-Tropez." },
+      { property: "og:title", content: "Villa Soléa — Maison Azur" },
+      { property: "og:description", content: "Découvrez Villa Soléa au fil d’une visite immobilière immersive en 3D." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: EstateExperience,
 });
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
