@@ -25,6 +25,7 @@ export function EstateExperience() {
   const pointer = useRef({ x: 0, y: 0 });
   const [chapter, setChapter] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [sceneReady, setSceneReady] = useState(false);
   const [detail, setDetail] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -54,11 +55,13 @@ export function EstateExperience() {
   return (
     <main className="relative h-[500vh] bg-background text-foreground">
       <div className="fixed inset-0">
-        <Canvas shadows dpr={[1, 1.5]} camera={{ position: [18, 8, 20], fov: 48 }} gl={{ antialias: true }}>
+        <Canvas shadows dpr={[1, 1.5]} camera={{ position: [20, 9, 24], fov: 48 }} gl={{ antialias: true }} onCreated={() => setSceneReady(true)}>
           <VillaScene progress={progress} pointer={pointer} />
         </Canvas>
         <div className="absolute inset-0 bg-vignette pointer-events-none" />
       </div>
+
+      {!sceneReady && <div className="fixed inset-0 z-40 grid place-items-center bg-background text-on-image"><div className="text-center"><p className="font-display text-3xl">Maison Azur</p><p className="mt-3 text-[10px] uppercase tracking-[0.2em] text-on-image-muted">Ouverture de la propriété</p></div></div>}
 
       <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between px-5 py-5 text-on-image md:px-10 md:py-7">
         <a href="#top" className="font-display text-xl tracking-normal">Maison Azur</a>

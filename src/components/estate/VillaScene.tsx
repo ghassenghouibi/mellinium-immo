@@ -14,11 +14,11 @@ const DARK_GREEN = "#273c2b";
 const LINEN = "#ddd2be";
 
 const cameraPath = [
-  { position: new THREE.Vector3(18, 8, 20), look: new THREE.Vector3(0, 3, 0) },
-  { position: new THREE.Vector3(12, 4.5, 10), look: new THREE.Vector3(0, 2.5, -1) },
-  { position: new THREE.Vector3(4, 3.2, 5.5), look: new THREE.Vector3(-2, 2.2, -3) },
-  { position: new THREE.Vector3(-5, 3, 2), look: new THREE.Vector3(-5, 2, -5) },
-  { position: new THREE.Vector3(4, 2.8, -5), look: new THREE.Vector3(7, 1.4, -8) },
+  { position: new THREE.Vector3(20, 9, 24), look: new THREE.Vector3(0, 3, 0) },
+  { position: new THREE.Vector3(15, 6, 16), look: new THREE.Vector3(0, 2.5, -1) },
+  { position: new THREE.Vector3(10, 4.8, 10), look: new THREE.Vector3(-2, 2.2, -2) },
+  { position: new THREE.Vector3(-12, 5, 9), look: new THREE.Vector3(-3, 2.4, -2) },
+  { position: new THREE.Vector3(11, 5.5, 15), look: new THREE.Vector3(4, 1, 7) },
 ] as const;
 const fallbackView = cameraPath[0];
 
