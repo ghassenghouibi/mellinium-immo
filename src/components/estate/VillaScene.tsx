@@ -20,6 +20,7 @@ const cameraPath = [
   { position: new THREE.Vector3(-5, 3, 2), look: new THREE.Vector3(-5, 2, -5) },
   { position: new THREE.Vector3(4, 2.8, -5), look: new THREE.Vector3(7, 1.4, -8) },
 ] as const;
+const fallbackView = cameraPath[0];
 
 function CameraTour({ progress, pointer }: { progress: React.RefObject<number>; pointer: React.RefObject<{ x: number; y: number }> }) {
   const { camera } = useThree();
@@ -32,8 +33,8 @@ function CameraTour({ progress, pointer }: { progress: React.RefObject<number>; 
     const scaled = Math.min(cameraPath.length - 1.001, Math.max(0, progress.current * (cameraPath.length - 1)));
     const index = Math.floor(scaled);
     const mix = scaled - index;
-    const from = cameraPath[index];
-    const to = cameraPath[Math.min(index + 1, cameraPath.length - 1)];
+    const from = cameraPath[index] ?? fallbackView;
+    const to = cameraPath[Math.min(index + 1, cameraPath.length - 1)] ?? fallbackView;
     target.lerpVectors(from.position, to.position, THREE.MathUtils.smoothstep(mix, 0, 1));
     target.x += pointer.current.x * 0.45;
     target.y += pointer.current.y * 0.2;

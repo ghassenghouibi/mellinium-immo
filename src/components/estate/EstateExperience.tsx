@@ -11,12 +11,14 @@ const chapters = [
   { kicker: "03 — La suite", title: "Le calme comme seul luxe", copy: "Une aile intime tournée vers le jardin, pensée comme un refuge silencieux." },
   { kicker: "04 — La piscine", title: "L’horizon à vos pieds", copy: "Un bassin miroir, 2 400 m² de terrain et des soirées baignées de soleil." },
 ] as const;
+const fallbackChapter = chapters[0];
 
 const details = [
   { label: "Architecture", value: "Pierre locale, enduits minéraux et menuiseries en chêne sur mesure." },
   { label: "Art de vivre", value: "Quatre suites, salon traversant, cuisine d’été et bassin miroir chauffé." },
   { label: "Situation", value: "À quelques minutes du village, dans un domaine confidentiel face à la mer." },
 ] as const;
+const fallbackDetail = details[0];
 
 export function EstateExperience() {
   const progress = useRef(0);
@@ -46,7 +48,8 @@ export function EstateExperience() {
     };
   }, [paused]);
 
-  const current = chapters[chapter];
+  const current = chapters[chapter] ?? fallbackChapter;
+  const selectedDetail = details[detail ?? 0] ?? fallbackDetail;
 
   return (
     <main className="relative h-[500vh] bg-background text-foreground">
@@ -84,7 +87,7 @@ export function EstateExperience() {
         {chapter > 0 && chapter < 4 && <button type="button" aria-label="Voir le détail de cet espace" onClick={() => setDetail(chapter % 3)} className="hotspot pointer-events-auto absolute right-[18%] top-[43%]"><span /> </button>}
       </section>
 
-      {detail !== null && <aside className="fixed bottom-28 right-5 z-40 w-[calc(100%-2.5rem)] max-w-sm border border-overlay bg-panel p-5 text-panel-foreground shadow-editorial md:right-10 md:bottom-32"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Détail {String(detail + 1).padStart(2, "0")}</p><h2 className="mt-2 font-display text-3xl tracking-normal">{details[detail].label}</h2></div><Button variant="ghost" size="icon" aria-label="Fermer" onClick={() => setDetail(null)}><X /></Button></div><p className="mt-4 text-sm leading-6 text-muted-foreground">{details[detail].value}</p></aside>}
+      {detail !== null && <aside className="fixed bottom-28 right-5 z-40 w-[calc(100%-2.5rem)] max-w-sm border border-overlay bg-panel p-5 text-panel-foreground shadow-editorial md:right-10 md:bottom-32"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Détail {String(detail + 1).padStart(2, "0")}</p><h2 className="mt-2 font-display text-3xl tracking-normal">{selectedDetail.label}</h2></div><Button variant="ghost" size="icon" aria-label="Fermer" onClick={() => setDetail(null)}><X /></Button></div><p className="mt-4 text-sm leading-6 text-muted-foreground">{selectedDetail.value}</p></aside>}
 
       {menuOpen && <div className="fixed inset-0 z-50 flex flex-col bg-menu px-6 py-6 text-menu-foreground md:px-12"><div className="flex items-center justify-between"><span className="font-display text-xl">Maison Azur</span><Button variant="glass" size="icon" aria-label="Fermer le menu" onClick={() => setMenuOpen(false)}><X /></Button></div><nav className="my-auto flex flex-col items-start gap-3 font-display text-[clamp(2.5rem,8vw,6.5rem)] leading-none"><button onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); setMenuOpen(false); }}>La propriété</button><button onClick={() => { window.scrollTo({ top: document.body.scrollHeight * 0.52, behavior: "smooth" }); setMenuOpen(false); }}>Les espaces</button><a href="mailto:visite@maisonazur.fr">Organiser une visite</a></nav><p className="max-w-xs text-xs leading-5 text-menu-muted">Une propriété présentée en exclusivité sur la presqu’île de Saint-Tropez.</p></div>}
 
