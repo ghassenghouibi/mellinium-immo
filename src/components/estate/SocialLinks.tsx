@@ -17,7 +17,7 @@ export function SocialLinks({ compact = false }: { compact?: boolean }) {
           rel="noreferrer"
           aria-label={label}
           title={label}
-          className={`${compact ? "h-9 w-9" : "h-11 w-11"} grid place-items-center border border-border text-muted-foreground transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:text-primary`}
+          className={`${compact ? "h-9 w-9" : "h-11 w-11"} grid place-items-center rounded-full border border-border text-muted-foreground transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:text-primary`}
         >
           <Icon className="h-4 w-4" />
         </a>

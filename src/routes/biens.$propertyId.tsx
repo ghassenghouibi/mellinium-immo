@@ -10,7 +10,7 @@ export const Route = createFileRoute("/biens/$propertyId")({
     return property;
   },
   head: ({ loaderData }) => ({ meta: [
-    { title: loaderData ? `${loaderData.name} à ${loaderData.city} — Mellinium` : "Bien indisponible — Mellinium" },
+    { title: loaderData ? `${loaderData.name} — ${loaderData.district}, La Marsa | Mellinium` : "Bien indisponible — Mellinium" },
     { name: "description", content: loaderData?.summary ?? "Ce bien n’est plus disponible." },
     { property: "og:title", content: loaderData ? `${loaderData.name} — Mellinium Immobilière` : "Bien indisponible" },
     { property: "og:description", content: loaderData?.summary ?? "Ce bien n’est plus disponible." },
@@ -22,5 +22,6 @@ export const Route = createFileRoute("/biens/$propertyId")({
 });
 
 function PropertyPage() {
-  return <PropertyDetailPage property={Route.useLoaderData()} />;
+  const property = Route.useLoaderData();
+  return <PropertyDetailPage key={property.id} property={property} />;
 }
