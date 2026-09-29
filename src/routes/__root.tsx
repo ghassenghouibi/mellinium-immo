@@ -77,11 +77,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Maison Azur" },
-      { name: "description", content: "Visites immersives de propriétés d’exception." },
-      { name: "author", content: "Maison Azur" },
-      { property: "og:title", content: "Maison Azur" },
-      { property: "og:description", content: "Visites immersives de propriétés d’exception." },
+      { title: "Mellinium Immobilière Housing" },
+      { name: "description", content: "Agence immobilière pour acheter, louer, vendre et valoriser des biens d’exception." },
+      { name: "author", content: "Mellinium Immobilière Housing" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       

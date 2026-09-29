@@ -10,33 +10,60 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BiensRouteImport } from './routes/biens'
+import { Route as BiensIndexRouteImport } from './routes/biens.index'
+import { Route as BiensPropertyIdRouteImport } from './routes/biens.$propertyId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BiensRoute = BiensRouteImport.update({
+  id: '/biens',
+  path: '/biens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BiensIndexRoute = BiensIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BiensRoute,
+} as any)
+const BiensPropertyIdRoute = BiensPropertyIdRouteImport.update({
+  id: '/$propertyId',
+  path: '/$propertyId',
+  getParentRoute: () => BiensRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/biens': typeof BiensRouteWithChildren
+  '/biens/$propertyId': typeof BiensPropertyIdRoute
+  '/biens/': typeof BiensIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/biens/$propertyId': typeof BiensPropertyIdRoute
+  '/biens': typeof BiensIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/biens': typeof BiensRouteWithChildren
+  '/biens/$propertyId': typeof BiensPropertyIdRoute
+  '/biens/': typeof BiensIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/biens' | '/biens/$propertyId' | '/biens/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/biens/$propertyId' | '/biens'
+  id: '__root__' | '/' | '/biens' | '/biens/$propertyId' | '/biens/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BiensRoute: typeof BiensRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +75,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/biens': {
+      id: '/biens'
+      path: '/biens'
+      fullPath: '/biens'
+      preLoaderRoute: typeof BiensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/biens/': {
+      id: '/biens/'
+      path: '/'
+      fullPath: '/biens/'
+      preLoaderRoute: typeof BiensIndexRouteImport
+      parentRoute: typeof BiensRoute
+    }
+    '/biens/$propertyId': {
+      id: '/biens/$propertyId'
+      path: '/$propertyId'
+      fullPath: '/biens/$propertyId'
+      preLoaderRoute: typeof BiensPropertyIdRouteImport
+      parentRoute: typeof BiensRoute
+    }
   }
 }
 
+interface BiensRouteChildren {
+  BiensPropertyIdRoute: typeof BiensPropertyIdRoute
+  BiensIndexRoute: typeof BiensIndexRoute
+}
+
+const BiensRouteChildren: BiensRouteChildren = {
+  BiensPropertyIdRoute: BiensPropertyIdRoute,
+  BiensIndexRoute: BiensIndexRoute,
+}
+
+const BiensRouteWithChildren = BiensRoute._addFileChildren(BiensRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BiensRoute: BiensRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

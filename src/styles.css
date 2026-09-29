@@ -184,6 +184,14 @@
   background: linear-gradient(90deg, color-mix(in oklab, var(--menu) 91%, transparent) 0%, color-mix(in oklab, var(--menu) 62%, transparent) 50%, color-mix(in oklab, var(--menu) 24%, transparent) 100%), linear-gradient(0deg, color-mix(in oklab, var(--menu) 72%, transparent) 0%, transparent 55%);
 }
 
+@utility bg-property-overlay {
+  background: linear-gradient(180deg, transparent 36%, color-mix(in oklab, var(--menu) 86%, transparent) 100%);
+}
+
+@utility bg-detail-overlay {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--menu) 48%, transparent) 0%, transparent 35%, color-mix(in oklab, var(--menu) 88%, transparent) 100%);
+}
+
 @utility shadow-editorial {
   box-shadow: 0 24px 70px color-mix(in oklab, var(--menu) 35%, transparent);
 }
@@ -215,13 +223,59 @@
 .editorial-grid { display: grid; gap: 3rem; }
 .testimonial-item + .testimonial-item { border-left: 0; }
 
+.hero-perspective { perspective: 1000px; transform-style: preserve-3d; }
+.depth-frame { perspective: 1000px; transform-style: preserve-3d; }
+.depth-frame img { transform: rotateY(4deg) rotateX(-1deg); box-shadow: 0 36px 80px color-mix(in oklab, var(--menu) 50%, transparent); transition: transform 900ms cubic-bezier(.2,.7,.2,1); }
+.depth-frame:hover img { transform: rotateY(0) rotateX(0) translateZ(20px); }
+.depth-shadow { position: absolute; inset: 7% -6% -7% 8%; border: 1px solid color-mix(in oklab, var(--primary) 45%, transparent); transform: translateZ(-20px); }
+.depth-plaque { transform: translateZ(45px); box-shadow: 0 20px 50px color-mix(in oklab, var(--menu) 40%, transparent); }
+.depth-photo { perspective: 900px; }
+.depth-photo img { transform: scale(1.04) rotateY(-2deg); transition: transform 1200ms cubic-bezier(.2,.7,.2,1); }
+.depth-photo:hover img { transform: scale(1.09) rotateY(0); }
+.depth-contact { transform: scale(1.04); transition: transform 4s ease; }
+.depth-contact:hover { transform: scale(1.1); }
+.expertise-tile { transition: transform 500ms cubic-bezier(.2,.7,.2,1), background-color 300ms ease; }
+.expertise-tile:hover { transform: translateY(-8px); background: color-mix(in oklab, var(--primary) 6%, transparent); }
+
+.property-card-3d { perspective: 1200px; transform-style: preserve-3d; }
+.property-card-3d > div { transform: rotateX(0) rotateY(0); box-shadow: 0 22px 60px color-mix(in oklab, var(--menu) 20%, transparent); transition: transform 700ms cubic-bezier(.2,.7,.2,1), box-shadow 700ms ease; }
+.property-card-3d:hover > div { transform: rotateX(1.5deg) rotateY(-1.5deg) translateY(-10px); box-shadow: 18px 34px 70px color-mix(in oklab, var(--menu) 34%, transparent); }
+
+.search-journey { position: relative; border: 1px solid var(--border); background: var(--background); padding: 1.25rem; box-shadow: 0 28px 80px color-mix(in oklab, var(--menu) 18%, transparent); }
+.journey-rail { position: absolute; left: 3.15rem; right: 3.15rem; top: 3.15rem; height: 2px; background: var(--border); }
+.journey-rail span { display: block; height: 100%; background: var(--primary); transition: width 700ms cubic-bezier(.2,.7,.2,1); }
+.journey-stop { display: grid; gap: .65rem; justify-items: center; color: var(--muted-foreground); font: inherit; }
+.journey-stop > span { display: grid; width: 2.75rem; height: 2.75rem; place-items: center; border: 1px solid var(--border); background: var(--background); transition: transform 500ms cubic-bezier(.2,.7,.2,1), color 300ms, border-color 300ms; }
+.journey-stop svg { width: 1rem; height: 1rem; }
+.journey-stop small { display: none; font-size: .6rem; text-transform: uppercase; }
+.journey-stop.is-active { color: var(--primary); }
+.journey-stop.is-active > span { border-color: var(--primary); transform: translateY(-3px) rotate(45deg); box-shadow: 0 10px 24px color-mix(in oklab, var(--primary) 20%, transparent); }
+.journey-stop.is-active svg { transform: rotate(-45deg); }
+.journey-stage { min-height: 22rem; display: grid; place-items: center; padding: 4rem 0 1.25rem; }
+.journey-panel { width: 100%; max-width: 48rem; text-align: center; animation: journey-arrive 650ms cubic-bezier(.2,.7,.2,1) both; }
+.journey-panel h3 { margin-top: 1rem; font-family: var(--display-font); font-size: clamp(2.1rem, 5vw, 4.25rem); line-height: .98; }
+.journey-options { margin-top: 2rem; display: flex; justify-content: center; gap: .75rem; }
+.journey-options-wrap { flex-wrap: wrap; }
+.room-stepper { margin: 2rem auto; display: flex; width: fit-content; align-items: center; gap: 1.25rem; }
+.room-stepper strong { min-width: 3rem; font-family: var(--display-font); font-size: 3.25rem; }
+.filter-select { min-height: 2.5rem; min-width: 0; flex: 1; border: 1px solid var(--border); background: var(--panel); padding: 0 .85rem; color: var(--panel-foreground); font-size: .75rem; outline: none; }
+.filter-select:focus { border-color: var(--primary); }
+.filter-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; color: var(--menu-muted); }
+.depth-hero-image { transform: scale(1.04); animation: detail-breathe 12s ease-out both; }
+
+@keyframes journey-arrive { from { opacity: 0; transform: perspective(800px) translateX(70px) rotateY(-7deg); } to { opacity: 1; transform: perspective(800px) translateX(0) rotateY(0); } }
+@keyframes detail-breathe { from { transform: scale(1.12); } to { transform: scale(1.04); } }
+
 @media (min-width: 768px) {
   .editorial-grid { grid-template-columns: 1.35fr .65fr; }
   .testimonial-item + .testimonial-item { border-left: 1px solid color-mix(in oklab, var(--on-image) 20%, transparent); }
+  .search-journey { padding: 2rem 3rem; }
+  .journey-stop small { display: block; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chapter-enter, .scroll-cue, .hotspot span { animation: none; }
+  .chapter-enter, .scroll-cue, .hotspot span, .journey-panel, .depth-hero-image { animation: none; }
   .reveal-section { opacity: 1; transform: none; transition: none; }
+  .depth-frame img, .depth-photo img, .property-card-3d > div, .depth-contact { transform: none; transition: none; }
   html { scroll-behavior: auto; }
 }
