@@ -1,3 +1,6 @@
 - [x] Restore the animated step-by-step search in “Construisez votre recherche”.
 - [x] Keep the compact hero search unchanged.
 - [x] Present the agency selection explicitly as “Biens à la une”.
+- [x] Move “Biens à la une” immediately before the guided search and animate its cards on scroll.
+- [x] Improve the visual presentation of every property detail page.
+- [x] Correct dark-on-dark buttons in the guided search.
