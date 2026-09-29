@@ -9,5 +9,5 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Keep the immersive property experience client-only because WebGL rendering and scroll-driven camera controls require browser APIs.
-- Keep the photographic tour as a sticky scroll sequence followed by normal document sections so the immersive experience transitions naturally into agency content.
+- Keep the agency experience client-only because scroll-driven photographic motion and intersection transitions require browser APIs.
+- Structure the agency story as alternating photographic sections for discovery, acquisition, sale, valuation, listings, and contact rather than a numbered property tour.
