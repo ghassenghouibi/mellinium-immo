@@ -5,16 +5,16 @@ import { Button } from "@/components/ui/button";
 import { cities } from "@/lib/properties";
 
 const saleBudgets = [
-  { label: "500 000 TND", value: 500000 },
-  { label: "900 000 TND", value: 900000 },
-  { label: "1 500 000 TND", value: 1500000 },
-  { label: "3 000 000 TND", value: 3000000 },
+  { label: "500 000 DNT", value: 500000 },
+  { label: "900 000 DNT", value: 900000 },
+  { label: "1 500 000 DNT", value: 1500000 },
+  { label: "3 000 000 DNT", value: 3000000 },
 ];
 const rentBudgets = [
-  { label: "2 000 TND", value: 2000 },
-  { label: "3 500 TND", value: 3500 },
-  { label: "6 000 TND", value: 6000 },
-  { label: "10 000 TND", value: 10000 },
+  { label: "2 000 DNT", value: 2000 },
+  { label: "3 500 DNT", value: 3500 },
+  { label: "6 000 DNT", value: 6000 },
+  { label: "10 000 DNT", value: 10000 },
 ];
 
 export function GuidedSearch() {
