@@ -25,6 +25,8 @@ const testimonials = [
   { quote: "Nous avons découvert la maison à distance puis organisé une visite privée. Tout était simple, précis et élégant.", name: "Alexander R.", place: "Acquéreur · Londres" },
 ];
 
+const menuSections = [["agence", "L’agence"], ["avis", "Les avis"], ["collection", "La collection"], ["contact", "Organiser une visite"]] as const;
+
 const N = rooms.length;
 const ease = (t: number) => t * t * (3 - 2 * t);
 
@@ -54,6 +56,8 @@ export function EstateExperience() {
       py += (my - py) * 0.045;
       layers.current.forEach((el, i) => {
         if (!el) return;
+        const roomAtIndex = rooms[i];
+        if (!roomAtIndex) return;
         const d = current - i;
         const entering = ease(Math.min(1, Math.max(0, 1 + d)));
         const leaving = ease(Math.min(1, Math.max(0, d)));
@@ -63,20 +67,20 @@ export function EstateExperience() {
           opacity = Math.min(1, (1 + d) * 1.8);
           scale = 0.76 + 0.24 * entering;
           blur = (1 - entering) * 8;
-          if (rooms[i].motion === "iris") clip = `circle(${entering * 72}% at ${rooms[i].focus[0]}% ${rooms[i].focus[1]}%)`;
-          if (rooms[i].motion === "sweep") { clip = `inset(0 ${(1 - entering) * 100}% 0 0)`; x += (1 - entering) * 90; }
-          if (rooms[i].motion === "light") scale = 1.08 - entering * 0.08;
+          if (roomAtIndex.motion === "iris") clip = `circle(${entering * 72}% at ${roomAtIndex.focus[0]}% ${roomAtIndex.focus[1]}%)`;
+          if (roomAtIndex.motion === "sweep") { clip = `inset(0 ${(1 - entering) * 100}% 0 0)`; x += (1 - entering) * 90; }
+          if (roomAtIndex.motion === "light") scale = 1.08 - entering * 0.08;
         } else {
           scale = 1 + leaving * 2.65;
           opacity = 1 - Math.max(0, (d - 0.48) / 0.52);
           blur = leaving * 5;
-          if (rooms[i].motion === "sweep") x -= leaving * 70;
+          if (roomAtIndex.motion === "sweep") x -= leaving * 70;
         }
         el.style.opacity = String(opacity);
         el.style.visibility = opacity < 0.01 ? "hidden" : "visible";
         el.style.zIndex = String(d > 0 ? 20 - i : 10 - i + N);
         el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
-        el.style.filter = `blur(${blur.toFixed(1)}px) brightness(${rooms[i].motion === "light" ? 1 + (1 - entering) * 0.45 : 1})`;
+        el.style.filter = `blur(${blur.toFixed(1)}px) brightness(${roomAtIndex.motion === "light" ? 1 + (1 - entering) * 0.45 : 1})`;
         el.style.clipPath = clip;
       });
       if (bar.current) bar.current.style.transform = `scaleX(${current / (N - 1)})`;
@@ -210,7 +214,7 @@ export function EstateExperience() {
           <div className="flex items-center justify-between"><p className="font-display text-2xl">Maison Azur</p><Button variant="glass" size="icon" aria-label="Fermer" onClick={() => setMenuOpen(false)}><X /></Button></div>
           <div className="mt-12 grid gap-12 md:grid-cols-2">
             <div><p className="mb-5 text-xs uppercase text-menu-muted">La visite</p><ol>{rooms.map((item, i) => <li key={item.title}><Button variant="ghost" onClick={() => goToRoom(i)} className="h-auto w-full justify-start gap-4 border-b border-menu-muted/30 py-3 text-left text-menu-foreground hover:bg-transparent hover:text-primary"><span className="text-xs text-menu-muted">{String(i + 1).padStart(2, "0")}</span><span className="font-display text-2xl md:text-3xl">{item.kicker.split("— ")[1] ?? item.title}</span></Button></li>)}</ol></div>
-            <nav><p className="mb-5 text-xs uppercase text-menu-muted">Découvrir</p>{[["agence", "L’agence"], ["avis", "Les avis"], ["collection", "La collection"], ["contact", "Organiser une visite"]].map(([id, label]) => <Button key={id} variant="ghost" onClick={() => goToSection(id)} className="h-auto w-full justify-between border-b border-menu-muted/30 py-4 text-menu-foreground hover:bg-transparent hover:text-primary"><span className="font-display text-3xl md:text-5xl">{label}</span><Compass /></Button>)}</nav>
+            <nav><p className="mb-5 text-xs uppercase text-menu-muted">Découvrir</p>{menuSections.map(([id, label]) => <Button key={id} variant="ghost" onClick={() => goToSection(id)} className="h-auto w-full justify-between border-b border-menu-muted/30 py-4 text-menu-foreground hover:bg-transparent hover:text-primary"><span className="font-display text-3xl md:text-5xl">{label}</span><Compass /></Button>)}</nav>
           </div>
         </div>
       )}
