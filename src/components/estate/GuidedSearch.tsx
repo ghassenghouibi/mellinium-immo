@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { type FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cities } from "@/lib/properties";
 
@@ -20,7 +20,7 @@ export function GuidedSearch({ hero = false }: { hero?: boolean }) {
     setBudget(0);
   };
 
-  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+  const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     void navigate({
       to: "/biens",
