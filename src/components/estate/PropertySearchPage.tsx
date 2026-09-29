@@ -15,6 +15,9 @@ export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
   const [type, setType] = useState("");
   const [rooms, setRooms] = useState(initial.rooms ?? 0);
   const [budget, setBudget] = useState(initial.budget ?? 0);
+  const [bedrooms, setBedrooms] = useState(0);
+  const [minArea, setMinArea] = useState(0);
+  const [feature, setFeature] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const results = useMemo(() => properties.filter((property) =>
@@ -22,10 +25,14 @@ export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
     (!city || property.city === city) &&
     (!type || property.type === type) &&
     (!rooms || property.rooms >= rooms) &&
-    (!budget || property.price <= budget)
-  ), [transaction, city, type, rooms, budget]);
+    (!budget || property.price <= budget) &&
+    (!bedrooms || property.bedrooms >= bedrooms) &&
+    (!minArea || property.area >= minArea) &&
+    (!feature || property.features.some((item) => item.toLocaleLowerCase("fr").includes(feature.toLocaleLowerCase("fr"))))
+  ), [transaction, city, type, rooms, budget, bedrooms, minArea, feature]);
 
-  const reset = () => { setCity(""); setType(""); setRooms(0); setBudget(0); };
+  const advancedCount = Number(bedrooms > 0) + Number(minArea > 0) + Number(Boolean(feature));
+  const reset = () => { setCity(""); setType(""); setRooms(0); setBudget(0); setBedrooms(0); setMinArea(0); setFeature(""); };
 
   return (
     <main className="min-h-screen bg-panel text-panel-foreground">
@@ -52,7 +59,7 @@ export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
             <select aria-label="Nombre de pièces" value={rooms} onChange={(event) => setRooms(Number(event.target.value))} className="filter-select"><option value="0">Toutes pièces</option>{[2,3,4,5,6].map((item) => <option key={item} value={item}>{item}+ pièces</option>)}</select>
             <select aria-label="Budget maximum" value={budget} onChange={(event) => setBudget(Number(event.target.value))} className="filter-select"><option value="0">Budget maximum</option>{(transaction === "vente" ? [500000,900000,1500000,3000000] : [2000,3500,6000,10000]).map((item) => <option key={item} value={item}>{new Intl.NumberFormat("fr-TN").format(item)} DNT</option>)}</select>
           </div>
-          <Button variant="outline" className="ml-auto lg:hidden" onClick={() => setFiltersOpen(true)}><SlidersHorizontal /> Filtres</Button>
+          <Button className="ml-auto rounded-none bg-menu text-menu-foreground hover:bg-menu/90 hover:text-primary" onClick={() => setFiltersOpen(true)}><SlidersHorizontal /> <span className="lg:hidden">Filtres</span><span className="hidden lg:inline">Plus de critères</span>{advancedCount > 0 && <span className="grid h-5 min-w-5 place-items-center bg-primary px-1 text-[10px] text-primary-foreground">{advancedCount}</span>}</Button>
           <Button variant="ghost" size="icon" onClick={reset} aria-label="Effacer les filtres" title="Effacer les filtres"><X /></Button>
         </div>
       </section>
@@ -65,7 +72,7 @@ export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
       </section>
       <footer className="border-t border-border px-5 py-9 md:px-10"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 sm:flex-row sm:items-center"><p className="text-xs text-muted-foreground">© 2026 Mellinium Immobilière Housing</p><SocialLinks compact /></div></footer>
 
-      {filtersOpen && <div className="fixed inset-0 z-50 bg-menu p-6 text-menu-foreground"><div className="flex items-center justify-between"><h2 className="font-display text-4xl">Vos critères</h2><Button variant="glass" size="icon" onClick={() => setFiltersOpen(false)} aria-label="Fermer"><X /></Button></div><div className="mt-12 grid gap-5"><label className="filter-label">Localisation<select value={city} onChange={(event) => setCity(event.target.value)} className="filter-select mt-2 w-full"><option value="">Toutes les villes</option>{cities.map((item) => <option key={item}>{item}</option>)}</select></label><label className="filter-label">Type<select value={type} onChange={(event) => setType(event.target.value)} className="filter-select mt-2 w-full"><option value="">Tous les biens</option>{propertyTypes.map((item) => <option key={item}>{item}</option>)}</select></label><label className="filter-label">Pièces<select value={rooms} onChange={(event) => setRooms(Number(event.target.value))} className="filter-select mt-2 w-full"><option value="0">Toutes pièces</option>{[2,3,4,5,6].map((item) => <option key={item} value={item}>{item}+ pièces</option>)}</select></label><label className="filter-label">Budget maximum<select value={budget} onChange={(event) => setBudget(Number(event.target.value))} className="filter-select mt-2 w-full"><option value="0">Sans limite</option>{(transaction === "vente" ? [500000,900000,1500000,3000000] : [2000,3500,6000,10000]).map((item) => <option key={item} value={item}>{new Intl.NumberFormat("fr-TN").format(item)} DNT</option>)}</select></label><Button className="mt-5" onClick={() => setFiltersOpen(false)}>Afficher {results.length} résultat{results.length > 1 ? "s" : ""}</Button></div></div>}
+      {filtersOpen && <div className="fixed inset-0 z-50 overflow-y-auto bg-menu p-6 text-menu-foreground md:left-auto md:w-[31rem] md:border-l md:border-border md:p-10"><div className="flex items-center justify-between"><div><p className="eyebrow text-primary">Affinez votre recherche</p><h2 className="mt-2 font-display text-4xl">Vos critères</h2></div><Button variant="glass" size="icon" onClick={() => setFiltersOpen(false)} aria-label="Fermer"><X /></Button></div><div className="mt-10 grid gap-5"><label className="filter-label lg:hidden">Localisation<select aria-label="Localisation mobile" value={city} onChange={(event) => setCity(event.target.value)} className="filter-select mt-2 w-full"><option value="">Toutes les villes</option>{cities.map((item) => <option key={item}>{item}</option>)}</select></label><label className="filter-label lg:hidden">Type<select aria-label="Type de bien mobile" value={type} onChange={(event) => setType(event.target.value)} className="filter-select mt-2 w-full"><option value="">Tous les biens</option>{propertyTypes.map((item) => <option key={item}>{item}</option>)}</select></label><label className="filter-label lg:hidden">Pièces<select aria-label="Nombre de pièces mobile" value={rooms} onChange={(event) => setRooms(Number(event.target.value))} className="filter-select mt-2 w-full"><option value="0">Toutes pièces</option>{[2,3,4,5,6].map((item) => <option key={item} value={item}>{item}+ pièces</option>)}</select></label><label className="filter-label lg:hidden">Budget maximum<select aria-label="Budget maximum mobile" value={budget} onChange={(event) => setBudget(Number(event.target.value))} className="filter-select mt-2 w-full"><option value="0">Sans limite</option>{(transaction === "vente" ? [500000,900000,1500000,3000000] : [2000,3500,6000,10000]).map((item) => <option key={item} value={item}>{new Intl.NumberFormat("fr-TN").format(item)} DNT</option>)}</select></label><div className="my-2 border-t border-border"/><label className="filter-label">Chambres minimum<select aria-label="Chambres minimum" value={bedrooms} onChange={(event) => setBedrooms(Number(event.target.value))} className="filter-select mt-2 w-full"><option value="0">Indifférent</option>{[1,2,3,4,5].map((item) => <option key={item} value={item}>{item}+ chambres</option>)}</select></label><label className="filter-label">Surface minimum<select aria-label="Surface minimum" value={minArea} onChange={(event) => setMinArea(Number(event.target.value))} className="filter-select mt-2 w-full"><option value="0">Indifférente</option>{[80,120,160,250,350].map((item) => <option key={item} value={item}>{item} m² minimum</option>)}</select></label><label className="filter-label">Prestation recherchée<select aria-label="Prestation recherchée" value={feature} onChange={(event) => setFeature(event.target.value)} className="filter-select mt-2 w-full"><option value="">Toutes prestations</option><option value="piscine">Piscine</option><option value="vue">Vue mer ou dégagée</option><option value="parking">Parking ou garage</option><option value="meubl">Meublé</option><option value="terrasse">Terrasse</option></select></label><Button className="mt-5 min-h-12 rounded-none" onClick={() => setFiltersOpen(false)}>Afficher {results.length} résultat{results.length > 1 ? "s" : ""}</Button><Button variant="ghost" className="text-menu-muted hover:text-menu-foreground" onClick={reset}>Effacer tous les critères</Button></div></div>}
     </main>
   );
 }

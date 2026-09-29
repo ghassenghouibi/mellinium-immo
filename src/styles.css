@@ -289,6 +289,8 @@
 .depth-hero-image { transform: scale(1.04); animation: detail-breathe 12s ease-out both; }
 .property-detail-intro { animation: property-copy-in 900ms 180ms cubic-bezier(.2,.7,.2,1) both; }
 .property-detail-copy { animation: property-copy-in 850ms 120ms cubic-bezier(.2,.7,.2,1) both; }
+.property-detail-cover { animation: gallery-photo-in 700ms cubic-bezier(.2,.7,.2,1) both, detail-breathe 12s ease-out both; }
+.property-thumbnails { scrollbar-width: thin; scrollbar-color: var(--primary) transparent; }
 .property-visit-panel { background: color-mix(in oklab, var(--primary) 4%, var(--background)); box-shadow: 18px 24px 70px color-mix(in oklab, var(--menu) 24%, transparent); }
 .property-gallery figure img { transition: transform 1.2s cubic-bezier(.2,.7,.2,1); }
 .property-gallery figure:hover img { transform: scale(1.04); }
@@ -300,6 +302,7 @@
 @keyframes guided-stage { from { opacity: 0; transform: perspective(900px) translateX(28px) rotateY(-3deg); } to { opacity: 1; transform: perspective(900px) translateX(0) rotateY(0); } }
 @keyframes detail-breathe { from { transform: scale(1.12); } to { transform: scale(1.04); } }
 @keyframes property-copy-in { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes gallery-photo-in { from { opacity: .45; filter: blur(5px); } to { opacity: 1; filter: blur(0); } }
 
 @media (min-width: 768px) {
   .editorial-grid { grid-template-columns: 1.35fr .65fr; }
@@ -311,7 +314,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chapter-enter, .scroll-cue, .hotspot span, .direct-search, .depth-hero-image, .guided-search-stage, .property-detail-intro, .property-detail-copy { animation: none; }
+  .chapter-enter, .scroll-cue, .hotspot span, .direct-search, .depth-hero-image, .guided-search-stage, .property-detail-intro, .property-detail-copy, .property-detail-cover { animation: none; }
   .reveal-section { opacity: 1; transform: none; transition: none; }
   .depth-frame img, .depth-photo img, .property-card-3d > div, .depth-contact, .featured-grid .property-card-3d { opacity: 1; transform: none; transition: none; }
   html { scroll-behavior: auto; }
