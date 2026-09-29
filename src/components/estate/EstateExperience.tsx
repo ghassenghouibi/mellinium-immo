@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowDown, ArrowRight, Building2, KeyRound, Quote, ShieldCheck, Sparkles } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { ArrowDown, ArrowRight, Building2, KeyRound, Quote, ShieldCheck, Sparkles, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import facade from "@/assets/tour/01-facade.jpg";
 import entree from "@/assets/tour/02-entree.jpg";
 import salon from "@/assets/tour/03-salon.jpg";
@@ -17,6 +17,7 @@ import { properties } from "@/lib/properties";
 export function EstateExperience() {
   const heroImage = useRef<HTMLImageElement>(null);
   const heroTitle = useRef<HTMLDivElement>(null);
+  const [heroSearchOpen, setHeroSearchOpen] = useState(false);
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -43,7 +44,9 @@ export function EstateExperience() {
         <SiteHeader overlay />
         <div className="relative z-10 mx-auto flex min-h-[calc(100svh-96px)] max-w-7xl flex-col justify-end px-5 pb-10 md:px-10 md:pb-14">
           <div ref={heroTitle} className="max-w-5xl will-change-transform"><p className="eyebrow text-primary">Mellinium Immobilière Housing</p><h1 className="mt-6 max-w-5xl font-display text-[clamp(3.5rem,9vw,8.5rem)] leading-[.84]">L’immobilier,<br/><em className="font-normal text-primary">autrement.</em></h1><p className="mt-8 max-w-xl text-base leading-7 text-on-image-muted md:text-lg">Chercher, vendre et valoriser chaque lieu avec une attention rare.</p></div>
-          <div className="mt-10 flex flex-wrap gap-4"><Button onClick={() => goTo("chercher")} size="lg" className="h-12 px-6">Chercher mon bien <ArrowRight /></Button><Button onClick={() => goTo("confier")} variant="glass" size="lg" className="h-12 px-6">Confier mon bien</Button></div>
+          <div className="hero-actions mt-10">
+            {heroSearchOpen ? <div className="hero-search-wrap"><GuidedSearch hero /><Button type="button" variant="glass" size="icon" className="hero-search-close" aria-label="Fermer la recherche" onClick={() => setHeroSearchOpen(false)}><X /></Button></div> : <div className="flex flex-wrap gap-4"><Button onClick={() => setHeroSearchOpen(true)} size="lg" className="h-12 px-6">Chercher mon bien <ArrowRight /></Button><Button onClick={() => goTo("confier")} variant="glass" size="lg" className="h-12 px-6">Confier mon bien</Button></div>}
+          </div>
           <Button variant="glass" size="icon" onClick={() => goTo("agence")} aria-label="Découvrir l’agence" className="scroll-cue absolute bottom-10 right-5 hidden rounded-full md:flex md:right-10"><ArrowDown /></Button>
         </div>
       </section>
