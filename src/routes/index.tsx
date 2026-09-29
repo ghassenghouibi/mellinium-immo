@@ -5,10 +5,10 @@ export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Villa Soléa — Maison Azur" },
-      { name: "description", content: "Visite immersive d’une villa méditerranéenne d’exception à Saint-Tropez." },
-      { property: "og:title", content: "Villa Soléa — Maison Azur" },
-      { property: "og:description", content: "Découvrez Villa Soléa au fil d’une visite immobilière immersive en 3D." },
+      { title: "Mellinium Immobilière Housing — Votre projet immobilier" },
+      { name: "description", content: "Mellinium Immobilière Housing vous accompagne pour chercher, vendre, estimer et valoriser votre bien immobilier." },
+      { property: "og:title", content: "Mellinium Immobilière Housing" },
+      { property: "og:description", content: "Une agence engagée à vos côtés pour chercher, vendre et valoriser chaque lieu avec exigence." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
