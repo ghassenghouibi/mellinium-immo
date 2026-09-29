@@ -241,7 +241,7 @@
 .property-card-3d > div { transform: rotateX(0) rotateY(0); box-shadow: 0 22px 60px color-mix(in oklab, var(--menu) 20%, transparent); transition: transform 700ms cubic-bezier(.2,.7,.2,1), box-shadow 700ms ease; }
 .property-card-3d:hover > div { transform: rotateX(1.5deg) rotateY(-1.5deg) translateY(-10px); box-shadow: 18px 34px 70px color-mix(in oklab, var(--menu) 34%, transparent); }
 
-.search-journey { position: relative; border: 1px solid var(--border); background: var(--background); padding: 1.25rem; box-shadow: 0 28px 80px color-mix(in oklab, var(--menu) 18%, transparent); }
+.search-journey { position: relative; border: 1px solid var(--border); background: var(--background); color: var(--foreground); padding: 1.25rem; box-shadow: 0 28px 80px color-mix(in oklab, var(--menu) 18%, transparent); }
 .journey-rail { position: absolute; left: 3.15rem; right: 3.15rem; top: 3.15rem; height: 2px; background: var(--border); }
 .journey-rail span { display: block; height: 100%; background: var(--primary); transition: width 700ms cubic-bezier(.2,.7,.2,1); }
 .journey-stop { display: grid; gap: .65rem; justify-items: center; color: var(--muted-foreground); font: inherit; }

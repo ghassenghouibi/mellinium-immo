@@ -6,7 +6,7 @@ import entree from "@/assets/tour/02-entree.jpg";
 import salon from "@/assets/tour/03-salon.jpg";
 import cuisine from "@/assets/tour/04-cuisine.jpg";
 import piscine from "@/assets/tour/07-piscine.jpg";
-import logoAsset from "@/assets/brand/mellinium-logo-transparent.png.asset.json";
+import logoAsset from "@/assets/brand/mellinium-logo-cropped.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { GuidedSearch } from "./GuidedSearch";
 import { PropertyCard } from "./PropertyCard";

@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import logoAsset from "@/assets/brand/mellinium-logo-transparent.png.asset.json";
+import logoAsset from "@/assets/brand/mellinium-logo-cropped.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { SocialLinks } from "./SocialLinks";
 
