@@ -241,19 +241,19 @@
 .property-card-3d > div { transform: rotateX(0) rotateY(0); box-shadow: 0 22px 60px color-mix(in oklab, var(--menu) 20%, transparent); transition: transform 700ms cubic-bezier(.2,.7,.2,1), box-shadow 700ms ease; }
 .property-card-3d:hover > div { transform: rotateX(1.5deg) rotateY(-1.5deg) translateY(-10px); box-shadow: 18px 34px 70px color-mix(in oklab, var(--menu) 34%, transparent); }
 
-.search-journey { position: relative; border: 1px solid var(--border); background: var(--background); color: var(--foreground); padding: 1.25rem; box-shadow: 0 28px 80px color-mix(in oklab, var(--menu) 18%, transparent); }
-.journey-rail { position: absolute; left: 3.15rem; right: 3.15rem; top: 3.15rem; height: 2px; background: var(--border); }
-.journey-rail span { display: block; height: 100%; background: var(--primary); transition: width 700ms cubic-bezier(.2,.7,.2,1); }
-.journey-stop { display: grid; gap: .65rem; justify-items: center; color: var(--muted-foreground); font: inherit; }
-.journey-stop > span { display: grid; width: 2.75rem; height: 2.75rem; place-items: center; border: 1px solid var(--border); background: var(--background); transition: transform 500ms cubic-bezier(.2,.7,.2,1), color 300ms, border-color 300ms; }
-.journey-stop svg { width: 1rem; height: 1rem; }
-.journey-stop small { display: none; font-size: .6rem; text-transform: uppercase; }
-.journey-stop.is-active { color: var(--primary); }
-.journey-stop.is-active > span { border-color: var(--primary); transform: translateY(-3px) rotate(45deg); box-shadow: 0 10px 24px color-mix(in oklab, var(--primary) 20%, transparent); }
-.journey-stop.is-active svg { transform: rotate(-45deg); }
-.journey-stage { min-height: 22rem; display: grid; place-items: center; padding: 4rem 0 1.25rem; }
+.search-journey { position: relative; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--background); color: var(--foreground); padding: 1.25rem 0; box-shadow: 0 28px 80px color-mix(in oklab, var(--menu) 12%, transparent); }
+.journey-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; padding: 0 1.25rem 1.25rem; }
+.journey-chip { display: flex; min-width: 0; align-items: center; gap: .65rem; border: 1px solid var(--border); padding: .7rem; color: var(--muted-foreground); text-align: left; font: inherit; font-size: .7rem; text-transform: uppercase; transition: border-color 300ms, color 300ms, transform 450ms cubic-bezier(.2,.7,.2,1), background-color 300ms; }
+.journey-chip:disabled { cursor: default; opacity: .55; }
+.journey-chip.is-current { border-color: var(--primary); color: var(--foreground); transform: translateY(-3px); }
+.journey-chip.is-complete { border-color: color-mix(in oklab, var(--primary) 55%, var(--border)); color: var(--primary); }
+.journey-chip-icon { display: grid; width: 1.8rem; height: 1.8rem; flex: 0 0 auto; place-items: center; background: color-mix(in oklab, var(--primary) 10%, transparent); }
+.journey-chip svg { width: .9rem; height: .9rem; }
+.journey-chip > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.journey-stage { min-height: 22rem; display: grid; place-items: center; padding: 2.5rem 1.25rem 1.25rem; perspective: 900px; }
 .journey-panel { width: 100%; max-width: 48rem; text-align: center; animation: journey-arrive 650ms cubic-bezier(.2,.7,.2,1) both; }
 .journey-panel h3 { margin-top: 1rem; font-family: var(--display-font); font-size: clamp(2.1rem, 5vw, 4.25rem); line-height: .98; }
+.journey-hint { margin: 1rem auto 0; max-width: 28rem; color: var(--muted-foreground); font-size: .8rem; }
 .journey-options { margin-top: 2rem; display: flex; justify-content: center; gap: .75rem; }
 .journey-options-wrap { flex-wrap: wrap; }
 .room-stepper { margin: 2rem auto; display: flex; width: fit-content; align-items: center; gap: 1.25rem; }
@@ -266,14 +266,15 @@
 .menu-link:hover { color: var(--primary); }
 .menu-link > span:first-child { font-family: var(--display-font); font-size: clamp(1.875rem, 6vw, 3.75rem); }
 
-@keyframes journey-arrive { from { opacity: 0; transform: perspective(800px) translateX(70px) rotateY(-7deg); } to { opacity: 1; transform: perspective(800px) translateX(0) rotateY(0); } }
+@keyframes journey-arrive { from { opacity: 0; transform: translateY(26px) scale(.97); filter: blur(5px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
 @keyframes detail-breathe { from { transform: scale(1.12); } to { transform: scale(1.04); } }
 
 @media (min-width: 768px) {
   .editorial-grid { grid-template-columns: 1.35fr .65fr; }
   .testimonial-item + .testimonial-item { border-left: 1px solid color-mix(in oklab, var(--on-image) 20%, transparent); }
-  .search-journey { padding: 2rem 3rem; }
-  .journey-stop small { display: block; }
+  .search-journey { padding: 2rem 0; }
+  .journey-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0 3rem 2rem; }
+  .journey-chip { padding: .85rem 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
