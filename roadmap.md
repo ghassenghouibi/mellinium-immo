@@ -4,3 +4,5 @@
 - [x] Move “Biens à la une” immediately before the guided search and animate its cards on scroll.
 - [x] Improve the visual presentation of every property detail page.
 - [x] Correct dark-on-dark buttons in the guided search.
+- [x] Add navigable multi-photo galleries to property pages and photo counts to cards.
+- [x] Add an accessible advanced-filter panel with bedrooms, surface, and amenities.

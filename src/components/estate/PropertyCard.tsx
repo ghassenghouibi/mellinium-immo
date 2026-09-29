@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, BedDouble, Maximize2 } from "lucide-react";
+import { ArrowUpRight, BedDouble, Images, Maximize2 } from "lucide-react";
 import type { Property } from "@/lib/properties";
 
 export function PropertyCard({ property, featured = false }: { property: Property; featured?: boolean }) {
@@ -19,6 +19,7 @@ export function PropertyCard({ property, featured = false }: { property: Propert
         <span className="absolute right-4 top-4 grid h-10 w-10 place-items-center border border-on-image/30 bg-glass text-on-image backdrop-blur-md transition-colors group-hover:border-primary group-hover:text-primary">
           <ArrowUpRight className="h-4 w-4" />
         </span>
+        <span className="absolute right-4 top-16 flex items-center gap-1.5 border border-on-image/30 bg-glass px-2.5 py-1.5 text-[10px] text-on-image backdrop-blur-md"><Images className="h-3.5 w-3.5" />{property.gallery.length} photos</span>
         <div className="absolute inset-x-0 bottom-0 p-5 text-on-image md:p-7">
           <p className="eyebrow text-primary">{property.city} · {property.district}</p>
           <h3 className="mt-2 font-display text-3xl md:text-4xl">{property.name}</h3>
