@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
-import logoAsset from "@/assets/brand/mellinium-logo-cropped.png.asset.json";
+import logo from "@/assets/brand/mellinium-logo-housing.png";
 import { agency } from "@/lib/agency";
 import { districts } from "@/lib/properties";
 import { SocialLinks } from "./SocialLinks";
@@ -10,7 +10,7 @@ export function SiteFooter() {
     <footer className="border-t border-border bg-panel px-5 pb-8 pt-16 md:px-10 md:pt-20">
       <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-2 lg:grid-cols-[1.3fr_.8fr_.8fr_1.1fr]">
         <div>
-          <img src={logoAsset.url} alt="Mellinium Immobilière Housing" className="h-20 w-auto" />
+          <img src={logo} alt="Mellinium Immobilière Housing" className="h-20 w-auto" />
           <p className="mt-6 max-w-sm text-sm leading-7 text-muted-foreground">Agence immobilière de prestige à La Marsa : achat, vente, location et estimation de biens d’exception, entre mer et jardins.</p>
           <div className="mt-6"><SocialLinks compact /></div>
         </div>

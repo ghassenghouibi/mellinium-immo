@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight, ChevronDown, Clock, Mail, MapPin, Menu, Phone, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import logoAsset from "@/assets/brand/mellinium-logo-cropped.png.asset.json";
+import logo from "@/assets/brand/mellinium-logo-housing.png";
 import piscine from "@/assets/tour/07-piscine.jpg";
 import { Button } from "@/components/ui/button";
 import { agency, mainNavigation } from "@/lib/agency";
@@ -77,7 +77,7 @@ export function SiteHeader() {
       <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
         <div className="relative mx-auto flex max-w-7xl items-stretch justify-between gap-6 px-5 md:px-10">
           <Link to="/" aria-label="Accueil Mellinium Immobilière" className="shrink-0 self-center py-3">
-            <img src={logoAsset.url} alt="Mellinium Immobilière Housing" className="site-header-logo object-contain" />
+            <img src={logo} alt="Mellinium Immobilière Housing" className="site-header-logo object-contain" />
           </Link>
 
           <nav className="hidden items-stretch gap-7 xl:gap-9 lg:flex" aria-label="Navigation principale">
@@ -100,7 +100,7 @@ export function SiteHeader() {
             <Button asChild className="header-cta hidden h-11 px-6 md:inline-flex">
               <Link to="/" hash="confier">Estimer mon bien</Link>
             </Button>
-            <Button variant="outline" className="h-11 gap-2 rounded-full px-4" aria-label="Ouvrir le menu" aria-expanded={open} onClick={() => setOpen(true)}>
+            <Button variant="outline" className="h-11 gap-2 rounded-full px-4 lg:hidden" aria-label="Ouvrir le menu" aria-expanded={open} onClick={() => setOpen(true)}>
               <Menu /><span className="hidden text-xs font-semibold uppercase tracking-[.14em] sm:inline">Menu</span>
             </Button>
           </div>
@@ -111,7 +111,7 @@ export function SiteHeader() {
         <div className="mobile-menu lg:grid-cols-[1.25fr_.75fr]" role="dialog" aria-modal="true" aria-label="Menu principal">
           <div className="flex flex-col px-5 py-5 md:px-12 md:py-8">
             <div className="flex items-center justify-between">
-              <Link to="/" onClick={close}><img src={logoAsset.url} alt="Mellinium Immobilière Housing" className="h-14 w-auto" /></Link>
+              <Link to="/" onClick={close}><img src={logo} alt="Mellinium Immobilière Housing" className="h-14 w-auto" /></Link>
               <Button variant="outline" className="h-11 gap-2 rounded-full px-4" aria-label="Fermer le menu" onClick={close}><X /><span className="hidden text-xs font-semibold uppercase tracking-[.14em] sm:inline">Fermer</span></Button>
             </div>
             <nav className="mt-10 md:mt-14" aria-label="Menu">
