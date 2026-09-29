@@ -12,3 +12,4 @@
 - Keep the agency experience client-only because scroll-driven photographic motion and intersection transitions require browser APIs.
 - Structure the agency story as alternating photographic sections for discovery, acquisition, sale, valuation, listings, and contact rather than a numbered property tour.
 - Keep property inventory in one typed client-side catalog shared by home, search results, and property-detail routes so demonstration data remains consistent.
+- Present all property locations and monetary values for the Tunisian market, with prices in TND, because the agency operates in Tunisia.

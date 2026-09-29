@@ -7,14 +7,14 @@ import { SiteHeader } from "./SiteHeader";
 import { SocialLinks } from "./SocialLinks";
 import { cities, properties, propertyTypes, type PropertyTransaction } from "@/lib/properties";
 
-type InitialSearch = { transaction?: PropertyTransaction; city?: string; rooms?: number };
+type InitialSearch = { transaction?: PropertyTransaction; city?: string; rooms?: number; budget?: number };
 
 export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
   const [transaction, setTransaction] = useState<PropertyTransaction>(initial.transaction ?? "vente");
   const [city, setCity] = useState(initial.city ?? "");
   const [type, setType] = useState("");
   const [rooms, setRooms] = useState(initial.rooms ?? 0);
-  const [budget, setBudget] = useState(0);
+  const [budget, setBudget] = useState(initial.budget ?? 0);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const results = useMemo(() => properties.filter((property) =>
@@ -50,7 +50,7 @@ export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
             <select aria-label="Localisation" value={city} onChange={(event) => setCity(event.target.value)} className="filter-select"><option value="">Toutes les villes</option>{cities.map((item) => <option key={item}>{item}</option>)}</select>
             <select aria-label="Type de bien" value={type} onChange={(event) => setType(event.target.value)} className="filter-select"><option value="">Tous les biens</option>{propertyTypes.map((item) => <option key={item}>{item}</option>)}</select>
             <select aria-label="Nombre de pièces" value={rooms} onChange={(event) => setRooms(Number(event.target.value))} className="filter-select"><option value="0">Toutes pièces</option>{[2,3,4,5,6].map((item) => <option key={item} value={item}>{item}+ pièces</option>)}</select>
-            <select aria-label="Budget maximum" value={budget} onChange={(event) => setBudget(Number(event.target.value))} className="filter-select"><option value="0">Budget maximum</option>{(transaction === "vente" ? [1000000,2000000,3500000,5000000] : [3000,5000,10000,15000]).map((item) => <option key={item} value={item}>{new Intl.NumberFormat("fr-FR").format(item)} €</option>)}</select>
+            <select aria-label="Budget maximum" value={budget} onChange={(event) => setBudget(Number(event.target.value))} className="filter-select"><option value="0">Budget maximum</option>{(transaction === "vente" ? [500000,900000,1500000,3000000] : [2000,3500,6000,10000]).map((item) => <option key={item} value={item}>{new Intl.NumberFormat("fr-TN").format(item)} DNT</option>)}</select>
           </div>
           <Button variant="outline" className="ml-auto lg:hidden" onClick={() => setFiltersOpen(true)}><SlidersHorizontal /> Filtres</Button>
           <Button variant="ghost" size="icon" onClick={reset} aria-label="Effacer les filtres" title="Effacer les filtres"><X /></Button>
@@ -65,7 +65,7 @@ export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
       </section>
       <footer className="border-t border-border px-5 py-9 md:px-10"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 sm:flex-row sm:items-center"><p className="text-xs text-muted-foreground">© 2026 Mellinium Immobilière Housing</p><SocialLinks compact /></div></footer>
 
-      {filtersOpen && <div className="fixed inset-0 z-50 bg-menu p-6 text-menu-foreground"><div className="flex items-center justify-between"><h2 className="font-display text-4xl">Vos critères</h2><Button variant="glass" size="icon" onClick={() => setFiltersOpen(false)} aria-label="Fermer"><X /></Button></div><div className="mt-12 grid gap-5"><label className="filter-label">Localisation<select value={city} onChange={(event) => setCity(event.target.value)} className="filter-select mt-2 w-full"><option value="">Toutes les villes</option>{cities.map((item) => <option key={item}>{item}</option>)}</select></label><label className="filter-label">Type<select value={type} onChange={(event) => setType(event.target.value)} className="filter-select mt-2 w-full"><option value="">Tous les biens</option>{propertyTypes.map((item) => <option key={item}>{item}</option>)}</select></label><label className="filter-label">Pièces<select value={rooms} onChange={(event) => setRooms(Number(event.target.value))} className="filter-select mt-2 w-full"><option value="0">Toutes pièces</option>{[2,3,4,5,6].map((item) => <option key={item} value={item}>{item}+ pièces</option>)}</select></label><Button className="mt-5" onClick={() => setFiltersOpen(false)}>Afficher {results.length} résultat{results.length > 1 ? "s" : ""}</Button></div></div>}
+      {filtersOpen && <div className="fixed inset-0 z-50 bg-menu p-6 text-menu-foreground"><div className="flex items-center justify-between"><h2 className="font-display text-4xl">Vos critères</h2><Button variant="glass" size="icon" onClick={() => setFiltersOpen(false)} aria-label="Fermer"><X /></Button></div><div className="mt-12 grid gap-5"><label className="filter-label">Localisation<select value={city} onChange={(event) => setCity(event.target.value)} className="filter-select mt-2 w-full"><option value="">Toutes les villes</option>{cities.map((item) => <option key={item}>{item}</option>)}</select></label><label className="filter-label">Type<select value={type} onChange={(event) => setType(event.target.value)} className="filter-select mt-2 w-full"><option value="">Tous les biens</option>{propertyTypes.map((item) => <option key={item}>{item}</option>)}</select></label><label className="filter-label">Pièces<select value={rooms} onChange={(event) => setRooms(Number(event.target.value))} className="filter-select mt-2 w-full"><option value="0">Toutes pièces</option>{[2,3,4,5,6].map((item) => <option key={item} value={item}>{item}+ pièces</option>)}</select></label><label className="filter-label">Budget maximum<select value={budget} onChange={(event) => setBudget(Number(event.target.value))} className="filter-select mt-2 w-full"><option value="0">Sans limite</option>{(transaction === "vente" ? [500000,900000,1500000,3000000] : [2000,3500,6000,10000]).map((item) => <option key={item} value={item}>{new Intl.NumberFormat("fr-TN").format(item)} DNT</option>)}</select></label><Button className="mt-5" onClick={() => setFiltersOpen(false)}>Afficher {results.length} résultat{results.length > 1 ? "s" : ""}</Button></div></div>}
     </main>
   );
 }
