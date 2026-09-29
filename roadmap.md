@@ -1,0 +1,3 @@
+- [x] Restore the animated step-by-step search in “Construisez votre recherche”.
+- [x] Keep the compact hero search unchanged.
+- [x] Present the agency selection explicitly as “Biens à la une”.

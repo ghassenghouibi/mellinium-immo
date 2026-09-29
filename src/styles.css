@@ -256,6 +256,27 @@
 .direct-search-hero > * { background: color-mix(in oklab, var(--menu) 78%, transparent); }
 .direct-search-hero .direct-search-field span { color: var(--on-image-muted); }
 .direct-search-hero select { color: var(--on-image); }
+.guided-search { position: relative; overflow: hidden; border: 1px solid color-mix(in oklab, var(--panel-foreground) 18%, transparent); background: var(--panel); box-shadow: 0 32px 90px color-mix(in oklab, var(--menu) 18%, transparent); }
+.guided-search-track { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); margin: 0 1.25rem; padding: 1.5rem 0 1.25rem; }
+.guided-search-line { position: absolute; left: 12.5%; right: 12.5%; top: 2.05rem; height: 1px; background: color-mix(in oklab, var(--panel-foreground) 18%, transparent); }
+.guided-search-stop { position: relative; z-index: 2; display: grid; justify-items: center; gap: .55rem; border: 0; background: transparent; color: var(--muted-foreground); pointer-events: none; }
+.guided-search-stop > span { display: grid; width: 1.15rem; height: 1.15rem; place-items: center; border: 1px solid color-mix(in oklab, var(--panel-foreground) 24%, transparent); background: var(--panel); font-size: .58rem; transition: all 400ms ease; }
+.guided-search-stop svg { width: .7rem; }
+.guided-search-stop small { font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+.guided-search-stop.is-active, .guided-search-stop.is-complete { color: var(--panel-foreground); }
+.guided-search-stop.is-active > span, .guided-search-stop.is-complete > span { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); }
+.guided-search-carriage { position: absolute; z-index: 3; top: 1.48rem; display: none; width: 2.25rem; height: 1.15rem; place-items: center; border: 1px solid var(--primary); background: var(--panel); color: var(--primary); transform: translateX(calc(12.5% - 50%)); transition: left 650ms cubic-bezier(.2,.8,.2,1); }
+.guided-search-carriage svg { width: .8rem; }
+.guided-search-stage { position: relative; display: grid; min-height: 21rem; align-content: center; justify-items: center; padding: 3rem 1.25rem 3.5rem; border-top: 1px solid color-mix(in oklab, var(--panel-foreground) 12%, transparent); text-align: center; animation: guided-stage 520ms cubic-bezier(.2,.7,.2,1) both; }
+.guided-search-stage h3 { max-width: 42rem; margin-top: .8rem; font-family: var(--display-font); font-size: clamp(2.2rem, 5vw, 4.5rem); line-height: .98; }
+.guided-search-options { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; margin-top: 2rem; }
+.guided-search-options button { min-width: 9rem; min-height: 3.25rem; border-radius: 0; }
+.guided-search-options-many button { min-width: 4rem; }
+.guided-search-select { display: grid; width: min(100%, 27rem); gap: .55rem; margin-top: 2rem; text-align: left; }
+.guided-search-select span { font-size: .62rem; font-weight: 700; text-transform: uppercase; color: var(--muted-foreground); letter-spacing: .1em; }
+.guided-search-select select { min-height: 3.5rem; width: 100%; border: 1px solid color-mix(in oklab, var(--panel-foreground) 25%, transparent); background: transparent; padding: 0 1rem; color: var(--panel-foreground); font: inherit; outline: none; }
+.guided-search-select select:focus { border-color: var(--primary); }
+.guided-search-back { position: absolute; left: 1rem; top: 1rem; border-radius: 0; }
 .filter-select { min-height: 2.5rem; min-width: 0; flex: 1; border: 1px solid var(--border); background: var(--panel); padding: 0 .85rem; color: var(--panel-foreground); font-size: .75rem; outline: none; }
 .filter-select:focus { border-color: var(--primary); }
 .filter-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; color: var(--menu-muted); }
@@ -265,6 +286,7 @@
 .menu-link > span:first-child { font-family: var(--display-font); font-size: clamp(1.875rem, 6vw, 3.75rem); }
 
 @keyframes search-unfold { from { opacity: 0; transform: perspective(900px) rotateX(-8deg) translateY(16px); clip-path: inset(0 100% 0 0); } to { opacity: 1; transform: perspective(900px) rotateX(0) translateY(0); clip-path: inset(0); } }
+@keyframes guided-stage { from { opacity: 0; transform: perspective(900px) translateX(28px) rotateY(-3deg); } to { opacity: 1; transform: perspective(900px) translateX(0) rotateY(0); } }
 @keyframes detail-breathe { from { transform: scale(1.12); } to { transform: scale(1.04); } }
 
 @media (min-width: 768px) {
@@ -277,7 +299,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chapter-enter, .scroll-cue, .hotspot span, .direct-search, .depth-hero-image { animation: none; }
+  .chapter-enter, .scroll-cue, .hotspot span, .direct-search, .depth-hero-image, .guided-search-stage { animation: none; }
   .reveal-section { opacity: 1; transform: none; transition: none; }
   .depth-frame img, .depth-photo img, .property-card-3d > div, .depth-contact { transform: none; transition: none; }
   html { scroll-behavior: auto; }
