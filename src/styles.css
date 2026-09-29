@@ -262,6 +262,9 @@
 .filter-select:focus { border-color: var(--primary); }
 .filter-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; color: var(--menu-muted); }
 .depth-hero-image { transform: scale(1.04); animation: detail-breathe 12s ease-out both; }
+.menu-link { display: flex; width: 100%; align-items: center; justify-content: space-between; border-bottom: 1px solid color-mix(in oklab, var(--menu-muted) 25%, transparent); padding: 1.25rem 0; color: var(--menu-foreground); transition: color 250ms ease; }
+.menu-link:hover { color: var(--primary); }
+.menu-link > span:first-child { font-family: var(--display-font); font-size: clamp(1.875rem, 6vw, 3.75rem); }
 
 @keyframes journey-arrive { from { opacity: 0; transform: perspective(800px) translateX(70px) rotateY(-7deg); } to { opacity: 1; transform: perspective(800px) translateX(0) rotateY(0); } }
 @keyframes detail-breathe { from { transform: scale(1.12); } to { transform: scale(1.04); } }

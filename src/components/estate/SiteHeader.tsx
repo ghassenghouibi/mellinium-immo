@@ -31,16 +31,10 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
             <Button variant="glass" size="icon" aria-label="Fermer le menu" onClick={() => setOpen(false)}><X /></Button>
           </div>
           <nav className="mx-auto mt-16 max-w-5xl">
-            {[
-              { label: "L’agence", to: "/" as const },
-              { label: "Acheter un bien", to: "/biens" as const, search: { transaction: "vente" as const } },
-              { label: "Louer un bien", to: "/biens" as const, search: { transaction: "location" as const } },
-              { label: "Confier mon bien", to: "/" as const, hash: "confier" },
-            ].map((item) => (
-              <Link key={item.label} to={item.to} search={item.search} hash={item.hash} onClick={() => setOpen(false)} className="flex w-full items-center justify-between border-b border-menu-muted/25 py-5 text-menu-foreground transition-colors hover:text-primary">
-                <span className="font-display text-3xl md:text-6xl">{item.label}</span><span aria-hidden="true">↗</span>
-              </Link>
-            ))}
+            <Link to="/" onClick={() => setOpen(false)} className="menu-link"><span>L’agence</span><span aria-hidden="true">↗</span></Link>
+            <Link to="/biens" search={{ transaction: "vente" }} onClick={() => setOpen(false)} className="menu-link"><span>Acheter un bien</span><span aria-hidden="true">↗</span></Link>
+            <Link to="/biens" search={{ transaction: "location" }} onClick={() => setOpen(false)} className="menu-link"><span>Louer un bien</span><span aria-hidden="true">↗</span></Link>
+            <Link to="/" hash="confier" onClick={() => setOpen(false)} className="menu-link"><span>Confier mon bien</span><span aria-hidden="true">↗</span></Link>
           </nav>
           <div className="mx-auto mt-12 flex max-w-5xl items-center justify-between gap-5 border-t border-menu-muted/20 pt-8">
             <span className="text-xs uppercase text-menu-muted">Suivez Mellinium</span><SocialLinks compact />
