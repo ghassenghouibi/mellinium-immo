@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Keep the immersive property experience client-only because WebGL rendering and scroll-driven camera controls require browser APIs.
+- Keep the photographic tour as a sticky scroll sequence followed by normal document sections so the immersive experience transitions naturally into agency content.
