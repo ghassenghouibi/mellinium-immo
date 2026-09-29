@@ -241,23 +241,21 @@
 .property-card-3d > div { transform: rotateX(0) rotateY(0); box-shadow: 0 22px 60px color-mix(in oklab, var(--menu) 20%, transparent); transition: transform 700ms cubic-bezier(.2,.7,.2,1), box-shadow 700ms ease; }
 .property-card-3d:hover > div { transform: rotateX(1.5deg) rotateY(-1.5deg) translateY(-10px); box-shadow: 18px 34px 70px color-mix(in oklab, var(--menu) 34%, transparent); }
 
-.search-journey { position: relative; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--background); color: var(--foreground); padding: 1.25rem 0; box-shadow: 0 28px 80px color-mix(in oklab, var(--menu) 12%, transparent); }
-.journey-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; padding: 0 1.25rem 1.25rem; }
-.journey-chip { display: flex; min-width: 0; align-items: center; gap: .65rem; border: 1px solid var(--border); padding: .7rem; color: var(--muted-foreground); text-align: left; font: inherit; font-size: .7rem; text-transform: uppercase; transition: border-color 300ms, color 300ms, transform 450ms cubic-bezier(.2,.7,.2,1), background-color 300ms; }
-.journey-chip:disabled { cursor: default; opacity: .55; }
-.journey-chip.is-current { border-color: var(--primary); color: var(--foreground); transform: translateY(-3px); }
-.journey-chip.is-complete { border-color: color-mix(in oklab, var(--primary) 55%, var(--border)); color: var(--primary); }
-.journey-chip-icon { display: grid; width: 1.8rem; height: 1.8rem; flex: 0 0 auto; place-items: center; background: color-mix(in oklab, var(--primary) 10%, transparent); }
-.journey-chip svg { width: .9rem; height: .9rem; }
-.journey-chip > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.journey-stage { min-height: 22rem; display: grid; place-items: center; padding: 2.5rem 1.25rem 1.25rem; perspective: 900px; }
-.journey-panel { width: 100%; max-width: 48rem; text-align: center; animation: journey-arrive 650ms cubic-bezier(.2,.7,.2,1) both; }
-.journey-panel h3 { margin-top: 1rem; font-family: var(--display-font); font-size: clamp(2.1rem, 5vw, 4.25rem); line-height: .98; }
-.journey-hint { margin: 1rem auto 0; max-width: 28rem; color: var(--muted-foreground); font-size: .8rem; }
-.journey-options { margin-top: 2rem; display: flex; justify-content: center; gap: .75rem; }
-.journey-options-wrap { flex-wrap: wrap; }
-.room-stepper { margin: 2rem auto; display: flex; width: fit-content; align-items: center; gap: 1.25rem; }
-.room-stepper strong { min-width: 3rem; font-family: var(--display-font); font-size: 3.25rem; }
+.direct-search { display: grid; gap: 1px; border: 1px solid var(--border); background: var(--border); color: var(--foreground); box-shadow: 0 28px 80px color-mix(in oklab, var(--menu) 16%, transparent); animation: search-unfold 600ms cubic-bezier(.2,.7,.2,1) both; }
+.direct-search > * { background: var(--background); }
+.direct-search-transaction { display: grid; grid-template-columns: 1fr 1fr; padding: .55rem; gap: .35rem; }
+.direct-search-transaction button { border-radius: 0; }
+.direct-search-field { display: grid; gap: .45rem; min-width: 0; padding: .8rem 1rem; }
+.direct-search-field span { color: var(--muted-foreground); font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; }
+.direct-search-field select { width: 100%; min-width: 0; border: 0; background: transparent; color: inherit; font: inherit; font-size: .82rem; outline: none; }
+.direct-search-submit { height: auto; min-height: 3.75rem; border-radius: 0; }
+.hero-actions { min-height: 3rem; }
+.hero-search-wrap { position: relative; width: min(100%, 72rem); padding-right: 3.5rem; }
+.hero-search-close { position: absolute; right: 0; top: 0; }
+.direct-search-hero { border-color: color-mix(in oklab, var(--on-image) 28%, transparent); background: color-mix(in oklab, var(--on-image) 28%, transparent); color: var(--on-image); backdrop-filter: blur(18px); }
+.direct-search-hero > * { background: color-mix(in oklab, var(--menu) 78%, transparent); }
+.direct-search-hero .direct-search-field span { color: var(--on-image-muted); }
+.direct-search-hero select { color: var(--on-image); }
 .filter-select { min-height: 2.5rem; min-width: 0; flex: 1; border: 1px solid var(--border); background: var(--panel); padding: 0 .85rem; color: var(--panel-foreground); font-size: .75rem; outline: none; }
 .filter-select:focus { border-color: var(--primary); }
 .filter-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; color: var(--menu-muted); }
@@ -266,19 +264,20 @@
 .menu-link:hover { color: var(--primary); }
 .menu-link > span:first-child { font-family: var(--display-font); font-size: clamp(1.875rem, 6vw, 3.75rem); }
 
-@keyframes journey-arrive { from { opacity: 0; transform: translateY(26px) scale(.97); filter: blur(5px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+@keyframes search-unfold { from { opacity: 0; transform: perspective(900px) rotateX(-8deg) translateY(16px); clip-path: inset(0 100% 0 0); } to { opacity: 1; transform: perspective(900px) rotateX(0) translateY(0); clip-path: inset(0); } }
 @keyframes detail-breathe { from { transform: scale(1.12); } to { transform: scale(1.04); } }
 
 @media (min-width: 768px) {
   .editorial-grid { grid-template-columns: 1.35fr .65fr; }
   .testimonial-item + .testimonial-item { border-left: 1px solid color-mix(in oklab, var(--on-image) 20%, transparent); }
-  .search-journey { padding: 2rem 0; }
-  .journey-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 0 3rem 2rem; }
-  .journey-chip { padding: .85rem 1rem; }
+  .direct-search { grid-template-columns: auto repeat(3, minmax(0, 1fr)) auto; align-items: stretch; }
+  .direct-search-transaction { min-width: 12rem; }
+  .direct-search-field { justify-content: center; min-width: 10rem; }
+  .direct-search-submit { min-width: 10rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chapter-enter, .scroll-cue, .hotspot span, .journey-panel, .depth-hero-image { animation: none; }
+  .chapter-enter, .scroll-cue, .hotspot span, .direct-search, .depth-hero-image { animation: none; }
   .reveal-section { opacity: 1; transform: none; transition: none; }
   .depth-frame img, .depth-photo img, .property-card-3d > div, .depth-contact { transform: none; transition: none; }
   html { scroll-behavior: auto; }
