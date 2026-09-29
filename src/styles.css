@@ -249,8 +249,8 @@
 .direct-search-field span { color: var(--muted-foreground); font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; }
 .direct-search-field select { width: 100%; min-width: 0; border: 0; background: transparent; color: inherit; font: inherit; font-size: .82rem; outline: none; }
 .direct-search-submit { height: auto; min-height: 3.75rem; border-radius: 0; }
-.hero-actions { min-height: 3rem; }
-.hero-search-wrap { position: relative; width: min(100%, 72rem); padding-right: 3.5rem; }
+.hero-actions { width: 100%; min-height: 3rem; }
+.hero-search-wrap { position: relative; box-sizing: border-box; width: 100%; max-width: 72rem; padding-right: 3.5rem; }
 .hero-search-close { position: absolute; right: 0; top: 0; }
 .direct-search-hero { border-color: color-mix(in oklab, var(--on-image) 28%, transparent); background: color-mix(in oklab, var(--on-image) 28%, transparent); color: var(--on-image); backdrop-filter: blur(18px); }
 .direct-search-hero > * { background: color-mix(in oklab, var(--menu) 78%, transparent); }
