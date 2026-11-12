@@ -19,5 +19,5 @@
 - Build every form control (selects, text fields, toggles, language switch) from `src/components/estate/fields.tsx` so the site keeps a single design system; never reintroduce native `<select>` styling.
 - Present social networks as the fixed left-edge rail (wide screens) plus the floating WhatsApp button, not as a page section.
 - Open the home page with the full-bleed cinematic film (`public/videos/hero-film.*`, chapters listed in `HeroFilm.tsx`) of the areas the agency covers; it is rendered with Remotion from full-resolution, downscaled-only photos (5 s per shot, 1 s cross-dissolve, ending on the opening frame for a seamless loop), so keep the place caption in sync when re-editing it.
-- Use the agency’s real social accounts only (Facebook `Malihacity`, Instagram `mellinium_immobliere`, WhatsApp 22 098 006); do not add placeholder networks.
+- Use the agency’s real social accounts only (Facebook `Malihacity`, Instagram `mellinium_immobliere`, WhatsApp 22 098 006, LinkedIn `hela-dhaïbi-204020418`); do not add placeholder networks.
 - Address every visitor (all embassies, international organisations, companies, private clients); the source brochure was written for one embassy, so never name a specific embassy or client on the site unless they have agreed to be referenced.

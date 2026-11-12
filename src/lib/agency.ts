@@ -40,6 +40,12 @@ export const socialNetworks = [
     handle: "facebook.com/Malihacity",
     href: "https://www.facebook.com/Malihacity/",
   },
+  {
+    id: "linkedin",
+    label: "LinkedIn",
+    handle: "Hela Dhaïbi",
+    href: "https://www.linkedin.com/in/hela-dha%C3%AFbi-204020418/",
+  },
 ] as const satisfies readonly { id: string; label: string; handle: string; href: string }[];
 
 export type SocialNetworkId = (typeof socialNetworks)[number]["id"];

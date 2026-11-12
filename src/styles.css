@@ -116,6 +116,7 @@
   --whatsapp: oklch(0.72 0.19 149);
   --whatsapp-deep: oklch(0.42 0.09 165);
   --facebook: oklch(0.58 0.2 258);
+  --linkedin: oklch(0.5 0.13 245);
   --instagram-a: oklch(0.8 0.16 75);
   --instagram-b: oklch(0.6 0.24 15);
   --instagram-c: oklch(0.5 0.24 320);
@@ -380,6 +381,7 @@
 .social-dot:hover { transform: translateY(-3px); color: var(--on-image); border-color: transparent; background: var(--primary); }
 .social-dot[data-network="whatsapp"]:hover { background: var(--whatsapp); }
 .social-dot[data-network="facebook"]:hover { background: var(--facebook); }
+.social-dot[data-network="linkedin"]:hover { background: var(--linkedin); }
 .social-dot[data-network="instagram"]:hover { background: linear-gradient(45deg, var(--instagram-a), var(--instagram-b) 50%, var(--instagram-c)); }
 .social-dot-light { border-color: color-mix(in oklab, var(--on-image) 45%, transparent); background: color-mix(in oklab, var(--ink) 30%, transparent); color: var(--on-image); backdrop-filter: blur(8px); }
 
@@ -523,6 +525,7 @@
 .social-rail-link[data-network="whatsapp"]:hover, .social-rail-link[data-network="whatsapp"]:focus-visible { background: var(--whatsapp); }
 .social-rail-link[data-network="instagram"]:hover, .social-rail-link[data-network="instagram"]:focus-visible { background: linear-gradient(45deg, var(--instagram-a), var(--instagram-b) 50%, var(--instagram-c)); }
 .social-rail-link[data-network="facebook"]:hover, .social-rail-link[data-network="facebook"]:focus-visible { background: var(--facebook); }
+.social-rail-link[data-network="linkedin"]:hover, .social-rail-link[data-network="linkedin"]:focus-visible { background: var(--linkedin); }
 .social-rail-link span { pointer-events: none; position: absolute; left: calc(100% + .9rem); top: 50%; white-space: nowrap; border-radius: 999px; background: var(--ink); padding: .4rem .8rem; font-size: .7rem; font-weight: 600; color: var(--on-image); opacity: 0; transform: translate(-6px, -50%); transition: opacity 250ms ease, transform 250ms ease; }
 .social-rail-link:hover span, .social-rail-link:focus-visible span { opacity: 1; transform: translate(0, -50%); }
 @media (min-width: 1400px) { .social-rail { display: flex; } }
