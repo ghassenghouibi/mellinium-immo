@@ -5,10 +5,10 @@ export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Mellinium Immobilière — Agence immobilière de prestige à La Marsa" },
-      { name: "description", content: "Villas, maisons et appartements à vendre et à louer à La Marsa, Gammarth et Sidi Abdelaziz. Estimation offerte sous 48 h." },
-      { property: "og:title", content: "Mellinium Immobilière Housing" },
-      { property: "og:description", content: "Une agence engagée à vos côtés pour chercher, vendre et valoriser chaque lieu avec exigence." },
+      { title: "Mellinium Immobilière — Real Estate & Relocation Services, La Marsa – Tunisia" },
+      { name: "description", content: "Furnished and unfurnished rentals, property sales and relocation assistance for diplomatic and international clients in the Northern suburbs of Greater Tunis." },
+      { property: "og:title", content: "Mellinium Immobilière" },
+      { property: "og:description", content: "Professional housing solutions for diplomatic & international clients — La Marsa, Tunisia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

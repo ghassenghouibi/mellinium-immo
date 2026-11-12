@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { LanguageProvider } from "../lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -77,9 +78,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Mellinium Immobilière Housing" },
-      { name: "description", content: "Agence immobilière à La Marsa : achat, vente, location et estimation de villas et appartements d’exception." },
-      { name: "author", content: "Mellinium Immobilière Housing" },
+      { title: "Mellinium Immobilière — Real Estate & Relocation Services, La Marsa" },
+      { name: "description", content: "Professional housing solutions for diplomatic & international clients in La Marsa, Gammarth, Sidi Bou Saïd, Carthage and Les Berges du Lac, Tunisia." },
+      { name: "author", content: "Mellinium Immobilière" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       
@@ -103,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="fr">
+    <html lang="en">
       <head>
         <HeadContent />
       </head>
@@ -121,7 +122,9 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <LanguageProvider>
+        <Outlet />
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

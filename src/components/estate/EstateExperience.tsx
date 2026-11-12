@@ -1,55 +1,38 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowDown, ArrowLeft, ArrowRight, Building2, Camera, Clock, FileSignature, Home, KeyRound, Mail, MapPin, Phone, Quote, Search, ShieldCheck, Star, Waves } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Clock, Compass, Eye, Globe2, Handshake, HeartHandshake, Home, KeyRound, Lock, Mail, MapPin, Search, ShieldCheck, Sparkles, Timer, UserCheck, Wrench, Zap } from "lucide-react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
-import facade from "@/assets/tour/01-facade.jpg";
 import entree from "@/assets/tour/02-entree.jpg";
 import salon from "@/assets/tour/03-salon.jpg";
-import cuisine from "@/assets/tour/04-cuisine.jpg";
 import piscine from "@/assets/tour/07-piscine.jpg";
+import laMarsa from "@/assets/tour/08-la-marsa.jpg";
 import { Button } from "@/components/ui/button";
-import { agency } from "@/lib/agency";
-import { marsaDistricts, rentalProperties, saleProperties } from "@/lib/properties";
+import { agency, whatsappHref } from "@/lib/agency";
+import { about, approach, areasIntro, closing, diplomatic, services, servicesIntro, whyUs, type ServiceId } from "@/lib/content";
+import { useI18n, type L } from "@/lib/i18n";
+import { areas, rentalProperties, saleProperties } from "@/lib/properties";
+import { team } from "@/lib/team";
 import { GuidedSearch } from "./GuidedSearch";
+import { HeroFilm } from "./HeroFilm";
 import { PropertyCard } from "./PropertyCard";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
+import { SelectField, TextAreaField, TextField } from "./fields";
+import { PhoneContact, SocialIcon } from "./SocialLinks";
 
-const services = [
-  { icon: Home, title: "Acheter", text: "Une sélection de villas et d’appartements à La Marsa, dont des biens confidentiels hors marché.", to: "/biens", search: { transaction: "vente" as const }, cta: "Voir les biens à vendre" },
-  { icon: KeyRound, title: "Louer", text: "Locations meublées ou à l’année pour familles, expatriés et diplomates, avec état des lieux et suivi.", to: "/biens", search: { transaction: "location" as const }, cta: "Voir les locations" },
-  { icon: FileSignature, title: "Vendre", text: "Estimation argumentée, photographies professionnelles et diffusion ciblée auprès d’acquéreurs qualifiés.", to: "/", hash: "confier", cta: "Confier mon bien" },
-  { icon: ShieldCheck, title: "Gérer", text: "Gestion locative sereine : recherche de locataires, encaissement, entretien et interlocuteur unique.", to: "/", hash: "contact", cta: "Nous consulter" },
-];
+const serviceLinks: Record<ServiceId, { icon: typeof Home; cta: L; to: "/" | "/biens"; search?: { transaction: "vente" | "location" }; hash?: string }> = {
+  rental: { icon: KeyRound, cta: { fr: "Voir les locations", en: "See rentals" }, to: "/biens", search: { transaction: "location" } },
+  sales: { icon: Home, cta: { fr: "Voir les biens à vendre", en: "See homes for sale" }, to: "/biens", search: { transaction: "vente" } },
+  search: { icon: Search, cta: { fr: "Construire ma recherche", en: "Build my search" }, to: "/", hash: "chercher" },
+  visits: { icon: Handshake, cta: { fr: "Organiser une visite", en: "Arrange a visit" }, to: "/", hash: "contact" },
+  relocation: { icon: Globe2, cta: { fr: "Préparer mon installation", en: "Plan my move" }, to: "/", hash: "diplomatie" },
+  management: { icon: Wrench, cta: { fr: "Confier mon bien", en: "Entrust my property" }, to: "/", hash: "contact" },
+};
 
-const stats = [
-  { value: "15 ans", label: "d’expérience à La Marsa" },
-  { value: "6", label: "quartiers d’expertise" },
-  { value: "48 h", label: "pour votre estimation" },
-  { value: "1", label: "conseiller dédié par projet" },
-];
-
-const sellingSteps = [
-  { title: "Estimation", text: "Visite du bien et analyse des ventes récentes du quartier." },
-  { title: "Mise en valeur", text: "Photographies, visite virtuelle et annonce soignée." },
-  { title: "Diffusion ciblée", text: "Notre fichier d’acquéreurs et une diffusion qualitative." },
-  { title: "Signature", text: "Négociation, sécurisation du dossier et accompagnement notarial." },
-];
-
-const testimonials = [
-  { quote: "Une connaissance fine de La Marsa et une estimation juste : notre villa de Gammarth a été vendue en moins de trois mois.", author: "Famille B.", context: "Vente à Gammarth" },
-  { quote: "Installés depuis l’étranger, nous avons trouvé notre appartement à Marsa Cube sans nous déplacer. Un suivi exemplaire.", author: "Sarah & Karim", context: "Location à Marsa Cube" },
-  { quote: "Discrétion, réactivité et photos magnifiques. Nous avons reçu des visiteurs sérieux dès la première semaine.", author: "M. Ben A.", context: "Vente à Sidi Abdelaziz" },
-];
-
-const nearby = [
-  { label: "Sidi Bou Saïd", value: "5 min" },
-  { label: "Aéroport Tunis-Carthage", value: "15 min" },
-  { label: "Les Berges du Lac", value: "15 min" },
-  { label: "Centre de Tunis", value: "25 min" },
-];
+const approachIcons = [Lock, Zap, UserCheck, ShieldCheck];
+const reasonIcons = [Compass, Sparkles, Timer, Handshake, Eye, HeartHandshake];
 
 export function EstateExperience() {
-  const heroImage = useRef<HTMLImageElement>(null);
+  const { t } = useI18n();
   const rentalTrack = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -58,12 +41,7 @@ export function EstateExperience() {
     if (reduceMotion) { reveals.forEach((element) => element.classList.add("is-visible")); return; }
     const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")), { threshold: 0.12 });
     reveals.forEach((element) => observer.observe(element));
-    const onScroll = () => {
-      if (heroImage.current) heroImage.current.style.transform = `translate3d(0, ${window.scrollY * 0.12}px, 0) scale(1.08)`;
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { observer.disconnect(); window.removeEventListener("scroll", onScroll); };
+    return () => observer.disconnect();
   }, []);
 
   const scrollRentals = (direction: 1 | -1) => {
@@ -76,121 +54,63 @@ export function EstateExperience() {
   return (
     <div className="bg-background text-foreground">
       <SiteHeader />
-      <main className="overflow-hidden">
-        {/* ——— Accueil ——— */}
-        <section className="relative px-5 pb-16 pt-10 md:px-10 md:pb-24 md:pt-16">
-          <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.05fr_.95fr]">
-            <div className="rise-in">
-              <p className="eyebrow eyebrow-rule text-primary">Agence immobilière · La Marsa</p>
-              <h1 className="mt-6 font-display text-[clamp(3.2rem,7.2vw,6.5rem)] font-medium leading-[.98]">Vivre La Marsa,<br /><em className="text-primary">côté mer.</em></h1>
-              <p className="mt-7 max-w-xl text-base leading-8 text-muted-foreground md:text-lg">Villas d’architecte à Gammarth, demeures de caractère à Sidi Abdelaziz, appartements face à la corniche : nous vous ouvrons les plus belles adresses de La Marsa.</p>
-              <div className="mt-10"><GuidedSearch hero /></div>
-              <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                <span className="flex items-center gap-2"><Star className="h-4 w-4 fill-primary text-primary" />Biens vérifiés et visités</span>
-                <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary" />Accompagnement jusqu’à la signature</span>
-              </div>
-            </div>
-            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-              <div className="hero-arch-outline hidden md:block" />
-              <div className="hero-arch aspect-[4/5]">
-                <img ref={heroImage} src={facade} alt="Villa en pierre entourée d’oliviers à Gammarth" className="h-full w-full object-cover" />
-              </div>
-              {featuredSale && <Link to="/biens/$propertyId" params={{ propertyId: featuredSale.id }} className="hero-floating-card shadow-soft absolute -bottom-6 left-0 flex items-center gap-4 border border-border bg-card p-3 pr-6 transition-transform hover:-translate-y-1 md:-left-10">
-                <img src={piscine} alt="" className="h-16 w-16 object-cover" />
-                <div>
-                  <p className="eyebrow text-primary">{featuredSale.badge}</p>
-                  <p className="font-display text-xl">{featuredSale.name}</p>
-                  <p className="text-xs text-muted-foreground">{featuredSale.district} · {featuredSale.area} m²</p>
-                </div>
-              </Link>}
-            </div>
-          </div>
-          <a href="#agence" aria-label="Découvrir l’agence" className="scroll-cue mx-auto mt-16 hidden h-11 w-11 place-items-center rounded-full border border-border text-muted-foreground hover:border-primary hover:text-primary md:grid"><ArrowDown className="h-4 w-4" /></a>
-        </section>
+      <main className="overflow-x-clip">
+        {/* ——— Accueil : film des quartiers ——— */}
+        <HeroFilm />
 
-        {/* ——— Chiffres ——— */}
-        <section className="border-y border-border bg-panel px-5 py-12 md:px-10">
+        {/* ——— Notre approche ——— */}
+        <section className="border-y border-border bg-panel px-5 py-12 md:px-10" aria-label={t({ fr: "Notre approche", en: "Our approach" })}>
           <div data-reveal className="reveal-section mx-auto grid max-w-7xl grid-cols-2 gap-y-10 lg:grid-cols-4">
-            {stats.map(({ value, label }) => <div key={label} className="border-l border-border pl-5 md:pl-8"><p className="stat-value">{value}</p><p className="mt-2 text-sm text-muted-foreground">{label}</p></div>)}
+            {approach.map((value, index) => {
+              const Icon = approachIcons[index] ?? ShieldCheck;
+              return <div key={value.en} className="border-l border-border pl-5 md:pl-8"><Icon className="h-5 w-5 text-primary" /><p className="stat-value approach-value mt-3">{t(value)}</p><p className="mt-2 text-xs uppercase tracking-[.16em] text-muted-foreground">{t({ fr: "Notre approche", en: "Our approach" })}</p></div>;
+            })}
           </div>
         </section>
 
-        {/* ——— L’agence ——— */}
+        {/* ——— À propos ——— */}
         <section id="agence" className="scroll-mt-24 px-5 py-24 md:px-10 md:py-32">
           <div data-reveal className="reveal-section mx-auto grid max-w-7xl gap-16 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
             <div className="relative mx-auto w-full max-w-lg lg:mx-0">
-              <div className="depth-photo"><img src={entree} alt="Entrée voûtée d’une demeure à Sidi Abdelaziz" className="aspect-[4/5] w-full object-cover" /></div>
+              <div className="depth-photo"><img src={entree} alt={t({ fr: "Entrée voûtée d’une demeure de caractère", en: "Arched entrance of a characterful residence" })} className="aspect-[4/5] w-full object-cover" /></div>
               <div className="shadow-soft absolute -bottom-8 -right-4 bg-card p-6 md:-right-10 md:p-8">
                 <p className="font-display text-4xl text-primary">La Marsa</p>
-                <p className="mt-1 text-xs uppercase tracking-[.16em] text-muted-foreground">Notre quartier, notre expertise</p>
+                <p className="mt-1 text-xs uppercase tracking-[.16em] text-muted-foreground">{agency.address.replace(", La Marsa", "")}</p>
               </div>
             </div>
             <div className="lg:pl-10">
-              <p className="eyebrow eyebrow-rule text-primary">Notre agence</p>
-              <h2 className="section-title mt-5">Une agence de quartier,<br /><em>une exigence de prestige.</em></h2>
-              <p className="mt-8 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">Installés au cœur de La Marsa, nous connaissons chaque rue, chaque résidence et chaque vue sur mer. Écoute, discrétion et conseil sur mesure guident chacun de nos accompagnements, de la première visite à la remise des clés.</p>
-              <div className="mt-10 grid gap-6 sm:grid-cols-3">
-                {[{ icon: MapPin, title: "Ancrage local", text: "Une connaissance fine de chaque quartier." }, { icon: Camera, title: "Mise en valeur", text: "Photos et visites soignées pour chaque bien." }, { icon: ShieldCheck, title: "Discrétion", text: "Des ventes confidentielles, hors marché." }].map(({ icon: Icon, title, text }) => (
-                  <div key={title}><span className="service-icon"><Icon /></span><p className="mt-4 font-display text-2xl">{title}</p><p className="mt-1 text-sm leading-6 text-muted-foreground">{text}</p></div>
-                ))}
+              <p className="eyebrow eyebrow-rule text-primary">{t(about.eyebrow)}</p>
+              <h2 className="section-title mt-5">{t(about.title)}<br /><em>{t(about.accent)}</em></h2>
+              <div className="mt-8 max-w-2xl space-y-5 text-base leading-8 text-muted-foreground md:text-lg">
+                {about.paragraphs.map((paragraph) => <p key={paragraph.en}>{t(paragraph)}</p>)}
               </div>
+              <blockquote className="commitment-card mt-10">
+                <p className="eyebrow text-primary">{t(about.commitmentTitle)}</p>
+                <p className="mt-3 font-display text-2xl leading-snug md:text-[1.7rem]">{t(about.commitment)}</p>
+              </blockquote>
             </div>
           </div>
         </section>
 
         {/* ——— Services ——— */}
-        <section className="bg-panel px-5 py-24 md:px-10 md:py-32">
+        <section id="services" className="scroll-mt-24 bg-panel px-5 py-24 md:px-10 md:py-32">
           <div data-reveal className="reveal-section mx-auto max-w-7xl">
-            <div className="max-w-3xl"><p className="eyebrow eyebrow-rule text-primary">Nos services</p><h2 className="section-title mt-5">Un accompagnement<br /><em>à chaque projet.</em></h2></div>
-            <div className="stagger-grid mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-              {services.map(({ icon: Icon, title, text, cta, ...link }) => (
-                <Link key={title} to={link.to} {...("search" in link ? { search: link.search } : {})} {...("hash" in link ? { hash: link.hash } : {})} className="service-card group">
-                  <span className="service-icon"><Icon /></span>
-                  <h3 className="mt-7 font-display text-3xl">{title}</h3>
-                  <p className="mt-3 flex-1 text-sm leading-7 text-muted-foreground">{text}</p>
-                  <span className="mt-7 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.14em] text-primary">{cta}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
-                </Link>
-              ))}
+            <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-end">
+              <div><p className="eyebrow eyebrow-rule text-primary">{t(servicesIntro.eyebrow)}</p><h2 className="section-title mt-5">{t(servicesIntro.title)}<br /><em>{t(servicesIntro.accent)}</em></h2></div>
+              <p className="max-w-xl text-base leading-8 text-muted-foreground">{t(servicesIntro.text)}</p>
             </div>
-          </div>
-        </section>
-
-        {/* ——— Ventes ——— */}
-        <section id="vente" className="scroll-mt-24 px-5 py-24 md:px-10 md:py-32">
-          <div data-reveal className="reveal-section mx-auto max-w-7xl">
-            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <div><p className="eyebrow eyebrow-rule text-primary">Biens à la une · À vendre</p><h2 className="section-title mt-5">Les plus belles adresses<br /><em>de La Marsa.</em></h2></div>
-              <Button asChild variant="outline" className="h-12 rounded-full px-6"><Link to="/biens" search={{ transaction: "vente" }}>Tous les biens à vendre ({saleProperties.length}) <ArrowRight /></Link></Button>
-            </div>
-            <div className="stagger-grid mt-14 grid gap-7 md:grid-cols-2 lg:grid-cols-3">
-              {featuredSale && <PropertyCard property={featuredSale} featured />}
-              {otherSales.slice(0, 3).map((property) => <PropertyCard key={property.id} property={property} />)}
-            </div>
-          </div>
-        </section>
-
-        {/* ——— La Marsa ——— */}
-        <section id="la-marsa" className="scroll-mt-24 bg-panel">
-          <div data-reveal className="reveal-section grid lg:grid-cols-2">
-            <div className="depth-photo relative min-h-[60svh]">
-              <img src={salon} alt="Salon ouvert sur la mer à La Marsa" className="absolute inset-0 h-full w-full object-cover" />
-              <div className="absolute inset-0 bg-hero-veil" />
-              <div className="absolute inset-x-0 bottom-0 grid grid-cols-2 gap-px bg-on-image/20 text-on-image backdrop-blur-md sm:grid-cols-4">
-                {nearby.map(({ label, value }) => <div key={label} className="bg-ink/35 px-4 py-4"><p className="font-display text-2xl">{value}</p><p className="text-[11px] leading-4 text-on-image-muted">{label}</p></div>)}
-              </div>
-            </div>
-            <div className="px-5 py-20 md:px-12 lg:px-16 lg:py-24">
-              <p className="eyebrow eyebrow-rule text-primary"><Waves className="h-4 w-4" />Art de vivre</p>
-              <h2 className="section-title mt-5">La Marsa,<br /><em>l’élégance méditerranéenne.</em></h2>
-              <p className="mt-7 max-w-xl leading-8 text-muted-foreground">Plages de sable fin, corniche animée, jardins de jasmin et écoles internationales : La Marsa réunit le calme d’une ville balnéaire et l’effervescence de la capitale, à deux pas de Sidi Bou Saïd et de Carthage.</p>
-              <div className="mt-10">
-                {marsaDistricts.map((district) => (
-                  <Link key={district.name} to="/biens" search={{ transaction: "vente", district: district.name }} className="district-row group" title={district.description}>
-                    <span><strong>{district.name}</strong><span className="mt-1 block text-sm text-muted-foreground">{district.tagline}</span></span>
-                    <ArrowRight className="h-5 w-5 text-primary transition-transform group-hover:translate-x-1" />
+            <div className="stagger-grid mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {services.map(({ id, title, text }) => {
+                const { icon: Icon, cta, ...link } = serviceLinks[id];
+                return (
+                  <Link key={id} to={link.to} {...(link.search ? { search: link.search } : {})} {...(link.hash ? { hash: link.hash } : {})} className="service-card group">
+                    <span className="service-icon"><Icon /></span>
+                    <h3 className="mt-7 font-display text-3xl">{t(title)}</h3>
+                    <p className="mt-3 flex-1 text-sm leading-7 text-muted-foreground">{t(text)}</p>
+                    <span className="mt-7 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.14em] text-primary">{t(cta)}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></span>
                   </Link>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -199,14 +119,109 @@ export function EstateExperience() {
         <section id="location" className="scroll-mt-24 px-5 py-24 md:px-10 md:py-32">
           <div data-reveal className="reveal-section mx-auto max-w-7xl">
             <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <div><p className="eyebrow eyebrow-rule text-primary">À louer · Meublé ou à l’année</p><h2 className="section-title mt-5">Posez vos valises<br /><em>à La Marsa.</em></h2><p className="mt-5 max-w-xl leading-7 text-muted-foreground">Des locations prêtes à vivre pour familles, expatriés et séjours longue durée, sélectionnées et visitées par notre équipe.</p></div>
+              <div><p className="eyebrow eyebrow-rule text-primary">{t({ fr: "Biens à la une · À louer", en: "Featured · For rent" })}</p><h2 className="section-title mt-5">{t({ fr: "Meublé ou non meublé,", en: "Furnished or unfurnished," })}<br /><em>{t({ fr: "prêt à vivre.", en: "ready to live in." })}</em></h2><p className="mt-5 max-w-xl leading-7 text-muted-foreground">{t({ fr: "Des locations de longue durée soigneusement sélectionnées dans les quartiers résidentiels prisés, selon vos exigences, votre budget et votre mode de vie.", en: "Carefully selected long-term rentals in premium residential areas, according to your requirements, budget and lifestyle." })}</p></div>
               <div className="flex items-center gap-3">
-                <Button variant="outline" size="icon" className="rounded-full" aria-label="Locations précédentes" onClick={() => scrollRentals(-1)}><ArrowLeft /></Button>
-                <Button variant="outline" size="icon" className="rounded-full" aria-label="Locations suivantes" onClick={() => scrollRentals(1)}><ArrowRight /></Button>
-                <Button asChild className="h-12 rounded-full px-6"><Link to="/biens" search={{ transaction: "location" }}>Toutes les locations <ArrowRight /></Link></Button>
+                <Button variant="outline" size="icon" className="rounded-full" aria-label={t({ fr: "Locations précédentes", en: "Previous rentals" })} onClick={() => scrollRentals(-1)}><ArrowLeft /></Button>
+                <Button variant="outline" size="icon" className="rounded-full" aria-label={t({ fr: "Locations suivantes", en: "Next rentals" })} onClick={() => scrollRentals(1)}><ArrowRight /></Button>
+                <Button asChild className="h-12 rounded-full px-6"><Link to="/biens" search={{ transaction: "location" }}>{t({ fr: "Toutes les locations", en: "All rentals" })} <ArrowRight /></Link></Button>
               </div>
             </div>
             <div ref={rentalTrack} className="rental-track mt-14">{rentalProperties.map((property) => <PropertyCard key={property.id} property={property} />)}</div>
+          </div>
+        </section>
+
+        {/* ——— Quartiers ——— */}
+        <section id="quartiers" className="scroll-mt-24 bg-panel">
+          <div data-reveal className="reveal-section grid lg:grid-cols-2">
+            <div className="relative">
+              {/* Photo fixée à la hauteur de l’écran pendant le défilement de la liste des quartiers. */}
+              <div className="depth-photo relative h-[min(34rem,80svh)] lg:sticky lg:top-[4.6rem] lg:h-[calc(100svh-4.6rem)]">
+                <img src={laMarsa} alt={t({ fr: "Sidi Bou Saïd et sa marina face au golfe de Tunis", en: "Sidi Bou Saïd and its marina facing the Gulf of Tunis" })} className="absolute inset-0 h-full w-full object-cover object-[center_62%]" />
+                <div className="absolute inset-0 bg-hero-veil" />
+                <div className="absolute inset-x-0 bottom-0 p-8 text-on-image md:p-12">
+                  <p className="font-display text-5xl leading-none md:text-6xl">{t(areasIntro.motto)}</p>
+                  <p className="mt-3 max-w-md text-sm uppercase tracking-[.16em] text-on-image-muted">{t(areasIntro.mottoSub)}</p>
+                </div>
+              </div>
+            </div>
+            <div className="px-5 py-20 md:px-12 lg:px-16 lg:py-24">
+              <p className="eyebrow eyebrow-rule text-primary"><MapPin className="h-4 w-4" />{t(areasIntro.eyebrow)}</p>
+              <h2 className="section-title mt-5">{t(areasIntro.title)}<br /><em>{t(areasIntro.accent)}</em></h2>
+              <p className="mt-7 max-w-xl leading-8 text-muted-foreground">{t(areasIntro.text)}</p>
+              <div className="mt-10">
+                {areas.map((area, index) => (
+                  <Link key={area.name} to="/biens" search={{ transaction: "location", district: area.name }} className="district-row group" title={t(area.description)}>
+                    <span className="flex items-baseline gap-4"><small className="text-xs text-primary">0{index + 1}</small><span><strong>{area.name}</strong><span className="mt-1 block text-sm text-muted-foreground">{t(area.tagline)}</span></span></span>
+                    <ArrowRight className="h-5 w-5 text-primary transition-transform group-hover:translate-x-1" />
+                  </Link>
+                ))}
+              </div>
+              <p className="mt-8 max-w-xl text-sm leading-7 text-muted-foreground">{t(areasIntro.note)}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ——— Ventes ——— */}
+        <section id="vente" className="scroll-mt-24 px-5 py-24 md:px-10 md:py-32">
+          <div data-reveal className="reveal-section mx-auto max-w-7xl">
+            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+              <div><p className="eyebrow eyebrow-rule text-primary">{t({ fr: "Biens à la une · À vendre", en: "Featured · For sale" })}</p><h2 className="section-title mt-5">{t({ fr: "Investir ou s’établir", en: "Invest or settle" })}<br /><em>{t({ fr: "durablement en Tunisie.", en: "long-term in Tunisia." })}</em></h2></div>
+              <Button asChild variant="outline" className="h-12 rounded-full px-6"><Link to="/biens" search={{ transaction: "vente" }}>{t({ fr: "Tous les biens à vendre", en: "All homes for sale" })} ({saleProperties.length}) <ArrowRight /></Link></Button>
+            </div>
+            <div className="stagger-grid mt-14 grid gap-7 md:grid-cols-2 lg:grid-cols-3">
+              {featuredSale && <PropertyCard property={featuredSale} featured />}
+              {otherSales.slice(0, 3).map((property) => <PropertyCard key={property.id} property={property} />)}
+            </div>
+          </div>
+        </section>
+
+        {/* ——— Clients diplomatiques ——— */}
+        <section id="diplomatie" className="scroll-mt-24 bg-menu text-menu-foreground">
+          <div data-reveal className="reveal-section grid lg:grid-cols-[.85fr_1.15fr]">
+            <div className="depth-photo relative min-h-[26rem] lg:min-h-full">
+              <img src={salon} alt={t({ fr: "Salon lumineux d’une résidence meublée", en: "Bright living room of a furnished residence" })} className="absolute inset-0 h-full w-full object-cover" />
+            </div>
+            <div className="px-5 py-20 md:px-12 lg:px-16 lg:py-28">
+              <p className="eyebrow eyebrow-rule text-menu-muted">{t(diplomatic.eyebrow)}</p>
+              <h2 className="section-title mt-5">{t(diplomatic.title)}<br /><em className="!text-[oklch(0.85_0.09_80)]">{t(diplomatic.accent)}</em></h2>
+              <div className="mt-7 max-w-2xl space-y-4 leading-8 text-menu-muted">{diplomatic.paragraphs.map((paragraph) => <p key={paragraph.en}>{t(paragraph)}</p>)}</div>
+              <p className="eyebrow mt-12 text-menu-muted">{t(diplomatic.listTitle)}</p>
+              <ul className="mt-5 grid gap-x-8 sm:grid-cols-2">
+                {diplomatic.list.map((item) => <li key={item.en} className="flex items-start gap-3 border-b border-menu-foreground/15 py-3.5 text-sm"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[oklch(0.85_0.09_80)]" />{t(item)}</li>)}
+              </ul>
+              <div className="mt-12 border-l-2 border-[oklch(0.85_0.09_80)] pl-6">
+                <p className="eyebrow text-menu-muted">{t(diplomatic.priorityTitle)}</p>
+                <p className="mt-3 font-display text-2xl leading-snug md:text-3xl">{t(diplomatic.priority)}</p>
+              </div>
+              <p className="mt-10 text-xs font-semibold uppercase tracking-[.18em] text-menu-muted">{t(diplomatic.closing)}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ——— Pourquoi nous ——— */}
+        <section id="pourquoi" className="scroll-mt-24 px-5 py-24 md:px-10 md:py-32">
+          <div data-reveal className="reveal-section mx-auto max-w-7xl">
+            <div className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-end">
+              <div><p className="eyebrow eyebrow-rule text-primary">{t(whyUs.eyebrow)}</p><h2 className="section-title mt-5">{t(whyUs.title)}<br /><em>{t(whyUs.accent)}</em></h2></div>
+              <div className="max-w-xl space-y-4 leading-8 text-muted-foreground">{whyUs.intro.map((paragraph) => <p key={paragraph.en}>{t(paragraph)}</p>)}</div>
+            </div>
+            <p className="eyebrow mt-16 text-primary">{t(whyUs.reasonsTitle)}</p>
+            <ol className="stagger-grid mt-6 grid gap-px border border-border bg-border md:grid-cols-2 lg:grid-cols-3">
+              {whyUs.reasons.map(({ title, text }, index) => {
+                const Icon = reasonIcons[index] ?? Compass;
+                return (
+                  <li key={title.en} className="reason-card">
+                    <div className="flex items-center justify-between"><span className="service-icon"><Icon /></span><span className="reason-number">0{index + 1}</span></div>
+                    <h3 className="mt-6 font-display text-3xl">{t(title)}</h3>
+                    <p className="mt-2 text-sm leading-7 text-muted-foreground">{t(text)}</p>
+                  </li>
+                );
+              })}
+            </ol>
+            <div className="promise-banner mt-10">
+              <p className="eyebrow text-primary">{t(whyUs.promiseTitle)}</p>
+              <p className="mt-3 font-display text-3xl leading-tight md:text-4xl">{t(whyUs.promise)}</p>
+            </div>
           </div>
         </section>
 
@@ -214,56 +229,14 @@ export function EstateExperience() {
         <section id="chercher" className="scroll-mt-24 bg-panel px-5 py-24 md:px-10 md:py-32">
           <div className="mx-auto max-w-7xl">
             <div data-reveal className="reveal-section grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
-              <div><p className="eyebrow eyebrow-rule text-primary"><Search className="h-4 w-4" />Votre futur lieu de vie</p><h2 className="section-title mt-5">Construisez<br /><em>votre recherche.</em></h2></div>
-              <p className="max-w-xl text-base leading-8 text-muted-foreground">Un parcours rapide, étape par étape. Chaque choix vous rapproche des adresses de La Marsa qui vous correspondent.</p>
+              <div><p className="eyebrow eyebrow-rule text-primary"><Search className="h-4 w-4" />{t({ fr: "Recherche & sélection", en: "Search & selection" })}</p><h2 className="section-title mt-5">{t({ fr: "Construisez", en: "Build" })}<br /><em>{t({ fr: "votre recherche.", en: "your search." })}</em></h2></div>
+              <p className="max-w-xl text-base leading-8 text-muted-foreground">{t({ fr: "Un parcours rapide, étape par étape. Chaque choix vous rapproche des biens qui correspondent à votre emplacement, votre budget et vos exigences.", en: "A quick, step-by-step journey. Each choice brings you closer to homes that match your location, budget and requirements." })}</p>
             </div>
             <div className="mt-14"><GuidedSearch /></div>
           </div>
         </section>
 
-        {/* ——— Vendre ——— */}
-        <section id="confier" className="scroll-mt-24">
-          <div data-reveal className="reveal-section grid lg:grid-cols-2">
-            <div className="flex items-center px-5 py-20 md:px-12 lg:px-16 lg:py-28">
-              <div className="max-w-xl">
-                <span className="service-icon"><Building2 /></span>
-                <p className="eyebrow eyebrow-rule mt-8 text-primary">Vendre ou louer votre bien</p>
-                <h2 className="section-title mt-5">Confiez-nous<br /><em>votre propriété.</em></h2>
-                <p className="mt-7 text-base leading-8 text-muted-foreground">Estimation offerte sous 48 h, mise en valeur professionnelle et diffusion auprès d’une clientèle tunisienne et internationale à la recherche de biens à La Marsa.</p>
-                <div className="mt-9 flex flex-wrap gap-3">
-                  <Button asChild className="h-12 rounded-full px-6"><a href={`mailto:${agency.email}?subject=${encodeURIComponent("Estimation de mon bien à La Marsa")}`}>Demander une estimation <ArrowRight /></a></Button>
-                  <Button asChild variant="outline" className="h-12 rounded-full px-6"><a href={agency.phoneHref}><Phone /> {agency.phone}</a></Button>
-                </div>
-              </div>
-            </div>
-            <div className="depth-photo relative min-h-[55svh]"><img src={cuisine} alt="Cuisine lumineuse d’une villa confiée à l’agence" className="absolute inset-0 h-full w-full object-cover" /></div>
-          </div>
-          <div className="bg-menu px-5 py-20 text-menu-foreground md:px-10 md:py-24">
-            <div data-reveal className="reveal-section mx-auto max-w-7xl">
-              <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-end"><div><p className="eyebrow text-menu-muted">Estimation & expertise</p><h2 className="section-title mt-5">La juste valeur,<br />en quatre étapes.</h2></div><p className="max-w-lg leading-8 text-menu-muted">Notre méthode associe connaissance du marché marsois, analyse des ventes comparables et présentation soignée de votre bien.</p></div>
-              <ol className="mt-14 grid gap-px bg-menu-foreground/15 md:grid-cols-2 lg:grid-cols-4">
-                {sellingSteps.map(({ title, text }, index) => <li key={title} className="bg-menu py-8 md:px-6 lg:first:pl-0"><span className="step-number">0{index + 1}</span><h3 className="mt-5 font-display text-3xl">{title}</h3><p className="mt-2 text-sm leading-6 text-menu-muted">{text}</p></li>)}
-              </ol>
-            </div>
-          </div>
-        </section>
-
-        {/* ——— Témoignages ——— */}
-        <section className="px-5 py-24 md:px-10 md:py-32">
-          <div data-reveal className="reveal-section mx-auto max-w-7xl">
-            <div className="text-center"><p className="eyebrow text-primary">Ils nous ont fait confiance</p><h2 className="section-title mt-5">Paroles <em>de clients.</em></h2></div>
-            <div className="stagger-grid mt-14 grid gap-6 md:grid-cols-3">
-              {testimonials.map(({ quote, author, context }) => (
-                <figure key={author} className="testimonial-card flex flex-col">
-                  <Quote className="h-7 w-7 text-primary" />
-                  <blockquote className="mt-6 flex-1 font-display text-2xl leading-snug">« {quote} »</blockquote>
-                  <figcaption className="mt-8 border-t border-border pt-5"><p className="text-sm font-semibold">{author}</p><p className="text-xs text-muted-foreground">{context}</p></figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        </section>
-
+        <TeamSection />
         <ContactSection />
       </main>
       <SiteFooter />
@@ -271,42 +244,93 @@ export function EstateExperience() {
   );
 }
 
+function TeamSection() {
+  const { t } = useI18n();
+  return (
+    <section id="equipe" className="scroll-mt-24 px-5 py-24 md:px-10 md:py-32">
+      <div data-reveal className="reveal-section mx-auto max-w-7xl">
+        <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-end">
+          <div><p className="eyebrow eyebrow-rule text-primary">{t({ fr: "Notre équipe", en: "Our team" })}</p><h2 className="section-title mt-5">{t({ fr: "Vos interlocuteurs", en: "Your local contacts" })}<br /><em>{t({ fr: "à La Marsa.", en: "in La Marsa." })}</em></h2></div>
+          <p className="max-w-xl text-base leading-8 text-muted-foreground">{t({ fr: "Une équipe à taille humaine, joignable via l’agence, qui vous accompagne en français et en anglais avec discrétion, réactivité et un suivi professionnel.", en: "A close-knit team you can reach through the agency, guiding you in English and French with discretion, responsiveness and professional follow-up." })}</p>
+        </div>
+        <div className="stagger-grid mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {team.map((member) => (
+            <article key={member.id} className={`team-card group ${member.lead ? "is-lead" : ""}`}>
+              <div className="team-photo">
+                <img src={member.photo} alt={`${member.name} — ${t(member.role)}`} loading="lazy" className="h-full w-full object-cover" />
+                {member.lead && <span className="property-badge absolute left-1/2 top-8 -translate-x-1/2 whitespace-nowrap !bg-primary !text-primary-foreground">{t(member.role)}</span>}
+              </div>
+              <div className="p-6">
+                <p className="eyebrow text-primary">{t(member.role)}</p>
+                <h3 className="mt-2 font-display text-4xl leading-none">{member.name}</h3>
+                <p className="mt-2 text-sm italic text-muted-foreground">{t(member.focus)}</p>
+                <p className="mt-4 border-t border-border pt-4 text-sm leading-6 text-muted-foreground">{t(member.bio)}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ContactSection() {
+  const { t } = useI18n();
   const [sent, setSent] = useState(false);
+  const [project, setProject] = useState(0);
+  const projects: L[] = [
+    { fr: "Location", en: "Rental" },
+    { fr: "Achat", en: "Purchase" },
+    { fr: "Recherche & sélection", en: "Property search" },
+    { fr: "Relocation", en: "Relocation" },
+    { fr: "Gestion de bien", en: "Property management" },
+  ];
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const body = [`Nom : ${data.get("name")}`, `Téléphone : ${data.get("phone")}`, `E-mail : ${data.get("email")}`, `Projet : ${data.get("project")}`, "", String(data.get("message") ?? "")].join("\n");
-    window.location.href = `mailto:${agency.email}?subject=${encodeURIComponent(`Projet ${data.get("project")} — ${data.get("name")}`)}&body=${encodeURIComponent(body)}`;
+    const projectLabel = t(projects[project] ?? { fr: "Location", en: "Rental" });
+    const body = [
+      `${t({ fr: "Nom", en: "Name" })} : ${data.get("name")}`,
+      `${t({ fr: "Téléphone", en: "Phone" })} : ${data.get("phone")}`,
+      `E-mail : ${data.get("email")}`,
+      `${t({ fr: "Projet", en: "Project" })} : ${projectLabel}`,
+      "",
+      String(data.get("message") ?? ""),
+    ].join("\n");
+    window.location.href = `mailto:${agency.email}?subject=${encodeURIComponent(`${projectLabel} — ${data.get("name")}`)}&body=${encodeURIComponent(body)}`;
     setSent(true);
   };
 
   return (
     <section id="contact" className="relative scroll-mt-24 overflow-hidden px-5 py-24 md:px-10 md:py-32">
-      <img src={piscine} alt="Piscine face au coucher de soleil sur le golfe de Tunis" className="absolute inset-0 h-full w-full object-cover" />
+      <img src={piscine} alt="" className="absolute inset-0 h-full w-full object-cover" />
       <div className="absolute inset-0 bg-contact-overlay" />
       <div data-reveal className="reveal-section relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
         <div className="text-on-image">
-          <p className="eyebrow">Écrivons la suite</p>
-          <h2 className="section-title mt-5">Parlons de<br /><em className="!text-on-image">votre projet.</em></h2>
-          <p className="mt-6 max-w-md leading-8 text-on-image-muted">Un conseiller vous répond sous 24 h, ou venez nous rencontrer à l’agence de La Marsa.</p>
+          <p className="eyebrow">{t(closing.eyebrow)}</p>
+          <h2 className="section-title mt-5">{t({ fr: "Parlons de", en: "Let’s talk about" })}<br /><em className="!text-on-image">{t({ fr: "votre installation.", en: "your move." })}</em></h2>
+          <div className="mt-6 max-w-md space-y-4 leading-8 text-on-image-muted">
+            {closing.paragraphs.map((paragraph) => <p key={paragraph.en}>{t(paragraph)}</p>)}
+            <p className="font-display text-xl italic text-on-image">{t(closing.signoff)}</p>
+          </div>
           <ul className="mt-10 space-y-4 text-sm">
-            <li className="flex items-center gap-3"><MapPin className="h-4 w-4" />{agency.address}</li>
-            <li><a href={agency.phoneHref} className="flex items-center gap-3 hover:underline"><Phone className="h-4 w-4" />{agency.phone}</a></li>
+            <li className="flex items-center gap-3"><MapPin className="h-4 w-4" />{agency.address} — {t(agency.location).replace("La Marsa – ", "")}</li>
+            {agency.phones.map((phone) => <li key={phone.href}><PhoneContact phone={phone} className="phone-contact-light" /></li>)}
             <li><a href={`mailto:${agency.email}`} className="flex items-center gap-3 hover:underline"><Mail className="h-4 w-4" />{agency.email}</a></li>
-            <li className="flex items-center gap-3"><Clock className="h-4 w-4" />{agency.hours}</li>
+            <li className="flex items-center gap-3"><Clock className="h-4 w-4" />{t(agency.hours)}</li>
           </ul>
         </div>
         <form onSubmit={submit} className="shadow-soft grid gap-6 bg-card p-7 md:grid-cols-2 md:p-10">
-          <p className="font-display text-3xl md:col-span-2">Prendre rendez-vous</p>
-          <label className="contact-field">Nom<input name="name" required autoComplete="name" /></label>
-          <label className="contact-field">Téléphone<input name="phone" type="tel" required autoComplete="tel" /></label>
-          <label className="contact-field md:col-span-2">E-mail<input name="email" type="email" required autoComplete="email" /></label>
-          <label className="contact-field md:col-span-2">Votre projet<select name="project" defaultValue="Achat"><option>Achat</option><option>Location</option><option>Vente</option><option>Estimation</option><option>Gestion locative</option></select></label>
-          <label className="contact-field md:col-span-2">Message<textarea name="message" rows={3} placeholder="Quartier, budget, type de bien…" /></label>
-          <Button type="submit" className="h-12 rounded-full md:col-span-2">Envoyer ma demande <ArrowRight /></Button>
-          {sent && <p className="text-center text-sm text-muted-foreground md:col-span-2" role="status">Votre messagerie s’est ouverte avec votre demande pré-remplie.</p>}
+          <p className="font-display text-3xl md:col-span-2">{t({ fr: "Prendre rendez-vous", en: "Book an appointment" })}</p>
+          <TextField label={t({ fr: "Nom", en: "Name" })} name="name" required autoComplete="name" />
+          <TextField label={t({ fr: "Téléphone", en: "Phone" })} name="phone" type="tel" required autoComplete="tel" />
+          <TextField className="md:col-span-2" label="E-mail" name="email" type="email" required autoComplete="email" />
+          <SelectField variant="underline" className="md:col-span-2" label={t({ fr: "Votre projet", en: "Your project" })} value={String(project)} onValueChange={(value) => setProject(Number(value))} options={projects.map((item, index) => ({ value: String(index), label: t(item) }))} />
+          <TextAreaField className="md:col-span-2" label="Message" name="message" rows={3} placeholder={t({ fr: "Quartier, budget, date d’arrivée, meublé ou non…", en: "Area, budget, arrival date, furnished or not…" })} />
+          <Button type="submit" className="h-12 rounded-full md:col-span-2">{t({ fr: "Envoyer ma demande", en: "Send my request" })} <ArrowRight /></Button>
+          <Button asChild variant="outline" className="h-12 rounded-full md:col-span-2"><a href={whatsappHref} target="_blank" rel="noreferrer"><SocialIcon id="whatsapp" /> {t({ fr: "Ou écrivez-nous sur WhatsApp", en: "Or message us on WhatsApp" })}</a></Button>
+          {sent && <p className="text-center text-sm text-muted-foreground md:col-span-2" role="status">{t({ fr: "Votre messagerie s’est ouverte avec votre demande pré-remplie.", en: "Your email app opened with your request pre-filled." })}</p>}
         </form>
       </div>
     </section>
