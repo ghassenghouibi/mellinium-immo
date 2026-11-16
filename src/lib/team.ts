@@ -14,8 +14,7 @@ export type TeamMember = {
   lead?: boolean;
 };
 
-/** Portraits de Riadh, Amel et Mehrez : photos Unsplash (licence Unsplash) en attendant les photos de l’équipe.
- *  unsplash.com/photos/6HnrvVZPANA · unsplash.com/photos/QXevDflbl8A · unsplash.com/photos/OFSQ6bHjFjs */
+/** Portraits : photos de l’équipe, recadrées en 4:5 (640×800) pour l’arche des cartes. */
 const salesRole: L = { fr: "Commercial", en: "Sales consultant" };
 
 export const team: TeamMember[] = [
