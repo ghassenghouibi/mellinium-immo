@@ -6,7 +6,8 @@ import piscine from "@/assets/tour/07-piscine.jpg";
 import { Button } from "@/components/ui/button";
 import { agency, mainNavigation, whatsappHref } from "@/lib/agency";
 import { languages, useI18n } from "@/lib/i18n";
-import { districts, formatPrice, propertyTypeLabels, propertyTypes, rentalProperties, saleProperties, type PropertyTransaction } from "@/lib/properties";
+import { useCatalog } from "@/lib/catalog";
+import { districts, formatPrice, propertyTypeLabels, type PropertyTransaction } from "@/lib/properties";
 import { SegmentedControl } from "./fields";
 import { PhoneContact, SocialIcon, SocialLinks } from "./SocialLinks";
 
@@ -25,7 +26,9 @@ export function LanguageSwitch() {
 
 function MegaPanel({ transaction }: { transaction: PropertyTransaction }) {
   const { t, lang } = useI18n();
-  const list = transaction === "vente" ? saleProperties : rentalProperties;
+  const catalog = useCatalog();
+  const list = transaction === "vente" ? catalog.sale : catalog.rental;
+  const propertyTypes = catalog.types;
   const featured = list[0];
   return (
     <div className="mega-panel">

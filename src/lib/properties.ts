@@ -6,56 +6,54 @@ import suite from "@/assets/tour/05-suite.jpg";
 import bain from "@/assets/tour/06-bain.jpg";
 import piscine from "@/assets/tour/07-piscine.jpg";
 import type { L, Lang } from "./i18n";
+import { areas } from "./property-areas";
+import { propertyTypeKeys, propertyTypeLabels, type PropertyType } from "./property-labels";
+
+export { propertyTypeLabels, type PropertyType };
+export { areas, type Area } from "./property-areas";
 
 export type PropertyTransaction = "vente" | "location";
-export type PropertyType = "Villa" | "Maison" | "Appartement";
 
+/**
+ * Un bien du catalogue. En production il est publié depuis le CRM (voir `src/server/listings.ts`) ;
+ * sans base de données (aperçu Lovable, développement), le site affiche `demoProperties`.
+ */
 export type Property = {
+  /** Identifiant d’URL (`/biens/$propertyId`). */
   id: string;
+  /** Référence CRM, absente des biens de démonstration. */
+  reference?: string | undefined;
+  /** `closed` : vendu ou loué, la fiche reste consultable mais le bien sort des listes. */
+  status?: "available" | "closed" | undefined;
   transaction: PropertyTransaction;
   city: string;
   district: string;
   type: PropertyType;
   name: string;
   price: number;
+  priceOnRequest?: boolean | undefined;
   rooms: number;
   bedrooms: number;
   bathrooms: number;
   area: number;
-  land?: number;
-  furnished?: boolean;
-  badge?: L;
-  highlight: L;
+  land?: number | undefined;
+  furnished?: boolean | undefined;
+  badge?: L | undefined;
+  highlight?: L | undefined;
   image: string;
   gallery: string[];
   summary: L;
   features: L[];
 };
 
-export type Area = {
-  name: string;
-  tagline: L;
-  description: L;
-};
-
-/** Les quartiers du Grand Tunis couverts par l’agence, dans l’ordre de la brochure. */
-export const areas: Area[] = [
-  { name: "La Marsa", tagline: { fr: "Notre port d’attache", en: "Our home base" }, description: { fr: "Corniche, plages, commerces et écoles internationales : le cœur résidentiel des banlieues nord, où se trouve notre agence.", en: "Seafront, beaches, shops and international schools: the residential heart of the Northern suburbs, home to our agency." } },
-  { name: "Gammarth", tagline: { fr: "Les hauteurs face à la mer", en: "Hillside sea views" }, description: { fr: "Villas sur les collines, vues panoramiques sur le golfe et plages confidentielles.", en: "Hillside villas, panoramic views over the gulf and secluded beaches." } },
-  { name: "Sidi Bou Saïd", tagline: { fr: "Le village bleu et blanc", en: "The blue-and-white village" }, description: { fr: "Ruelles pavées, maisons de caractère et vues mythiques sur la baie de Tunis.", en: "Cobbled lanes, characterful houses and iconic views over the Bay of Tunis." } },
-  { name: "Carthage", tagline: { fr: "Histoire & quartier diplomatique", en: "History & diplomatic quarter" }, description: { fr: "Résidences arborées entre sites antiques, ambassades et résidences officielles.", en: "Leafy residences among ancient sites, embassies and official residences." } },
-  { name: "Les Jardins de Carthage", tagline: { fr: "Résidentiel contemporain", en: "Contemporary living" }, description: { fr: "Un quartier récent et calme, prisé des familles pour ses villas et résidences sécurisées.", en: "A recent, quiet district favoured by families for its villas and gated residences." } },
-  { name: "Les Berges du Lac 1", tagline: { fr: "Affaires & organisations", en: "Business & organisations" }, description: { fr: "Sièges d’entreprises, organisations internationales et appartements modernes au bord du lac.", en: "Corporate headquarters, international organisations and modern lakeside apartments." } },
-  { name: "Les Berges du Lac 2", tagline: { fr: "Moderne & familial", en: "Modern & family-friendly" }, description: { fr: "Résidences neuves, écoles internationales et promenade au bord de l’eau.", en: "New residences, international schools and a lakeside promenade." } },
-];
-
-export const properties: Property[] = [
+/** Catalogue de démonstration, affiché tant qu’aucune base de données n’est configurée. */
+export const demoProperties: Property[] = [
   {
     id: "villa-solea-gammarth",
     transaction: "vente",
     city: "Grand Tunis",
     district: "Gammarth",
-    type: "Villa",
+    type: "villa",
     name: "Villa Soléa",
     price: 4200000,
     rooms: 8,
@@ -75,7 +73,7 @@ export const properties: Property[] = [
     transaction: "vente",
     city: "Grand Tunis",
     district: "Sidi Bou Saïd",
-    type: "Villa",
+    type: "villa",
     name: "Villa des Oliviers",
     price: 2650000,
     rooms: 7,
@@ -95,7 +93,7 @@ export const properties: Property[] = [
     transaction: "vente",
     city: "Grand Tunis",
     district: "La Marsa",
-    type: "Appartement",
+    type: "appartement",
     name: "Penthouse Corniche",
     price: 1850000,
     rooms: 5,
@@ -114,7 +112,7 @@ export const properties: Property[] = [
     transaction: "vente",
     city: "Grand Tunis",
     district: "Les Jardins de Carthage",
-    type: "Maison",
+    type: "maison",
     name: "Maison des Pins",
     price: 1350000,
     rooms: 6,
@@ -133,7 +131,7 @@ export const properties: Property[] = [
     transaction: "vente",
     city: "Grand Tunis",
     district: "Les Berges du Lac 2",
-    type: "Appartement",
+    type: "appartement",
     name: "Appartement Jasmin",
     price: 780000,
     rooms: 4,
@@ -151,7 +149,7 @@ export const properties: Property[] = [
     transaction: "location",
     city: "Grand Tunis",
     district: "Gammarth",
-    type: "Villa",
+    type: "villa",
     name: "Villa Azur",
     price: 12000,
     rooms: 7,
@@ -172,7 +170,7 @@ export const properties: Property[] = [
     transaction: "location",
     city: "Grand Tunis",
     district: "La Marsa",
-    type: "Appartement",
+    type: "appartement",
     name: "Duplex Horizon",
     price: 6500,
     rooms: 5,
@@ -192,7 +190,7 @@ export const properties: Property[] = [
     transaction: "location",
     city: "Grand Tunis",
     district: "Carthage",
-    type: "Maison",
+    type: "maison",
     name: "Dar Yasmine",
     price: 5200,
     rooms: 5,
@@ -213,7 +211,7 @@ export const properties: Property[] = [
     transaction: "location",
     city: "Grand Tunis",
     district: "Les Berges du Lac 1",
-    type: "Appartement",
+    type: "appartement",
     name: "Appartement Nour",
     price: 3200,
     rooms: 4,
@@ -232,7 +230,7 @@ export const properties: Property[] = [
     transaction: "location",
     city: "Grand Tunis",
     district: "La Marsa",
-    type: "Appartement",
+    type: "appartement",
     name: "Studio Marsa",
     price: 1900,
     rooms: 2,
@@ -248,16 +246,13 @@ export const properties: Property[] = [
   },
 ];
 
-export const saleProperties = properties.filter((property) => property.transaction === "vente");
-export const rentalProperties = properties.filter((property) => property.transaction === "location");
 export const districts = areas.map((area) => area.name);
-export const propertyTypes = Array.from(new Set(properties.map((property) => property.type)));
 
-export const propertyTypeLabels: Record<PropertyType, { singular: L; plural: L }> = {
-  Villa: { singular: { fr: "Villa", en: "Villa" }, plural: { fr: "Villas", en: "Villas" } },
-  Maison: { singular: { fr: "Maison", en: "House" }, plural: { fr: "Maisons", en: "Houses" } },
-  Appartement: { singular: { fr: "Appartement", en: "Apartment" }, plural: { fr: "Appartements", en: "Apartments" } },
-};
+/** Types présents dans une liste, dans l’ordre du CRM. */
+export function typesIn(list: Property[]): PropertyType[] {
+  const present = new Set(list.map((property) => property.type));
+  return propertyTypeKeys.filter((type) => present.has(type));
+}
 
 /** Prestations proposées dans le filtre avancé, testées sur le libellé français. */
 export const featureFilters: { value: string; label: L; matches: (property: Property) => boolean }[] = [
@@ -293,20 +288,17 @@ export function formatCompactAmount(value: number, lang: Lang) {
 }
 
 export function formatPrice(property: Property, lang: Lang) {
+  if (property.priceOnRequest || !property.price) return lang === "fr" ? "Prix sur demande" : "Price on request";
   return property.transaction === "location" ? `${formatAmount(property.price, lang)} ${lang === "fr" ? "/ mois" : "/ month"}` : formatAmount(property.price, lang);
-}
-
-export function getProperty(id: string) {
-  return properties.find((property) => property.id === id);
 }
 
 export function getArea(name: string) {
   return areas.find((area) => area.name === name);
 }
 
-export function getSimilarProperties(property: Property, count = 3) {
-  return properties
-    .filter((item) => item.id !== property.id && item.transaction === property.transaction)
+export function getSimilarProperties(list: Property[], property: Property, count = 3) {
+  return list
+    .filter((item) => item.id !== property.id && item.transaction === property.transaction && item.status !== "closed")
     .sort((a, b) => Number(b.district === property.district) - Number(a.district === property.district))
     .slice(0, count);
 }

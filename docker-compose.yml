@@ -1,0 +1,55 @@
+# Mellinium Immobilière website (https://melliniumimmobiliere.tn) + PostgreSQL.
+#
+#   cp .env.example .env    # then fill in the passwords and keys
+#   docker compose up -d --build
+#
+# The site listens on 127.0.0.1:${WEB_PORT} only: nginx on the VPS serves the domain over
+# HTTPS and proxies to it (deploy/nginx/melliniumimmobiliere.tn.conf).
+# The CRM publishes to https://<SITE_DOMAIN>/api/properties/crm with CRM_API_KEY
+# (CRM back-end: MELLINIUM_API_BASE_URL / MELLINIUM_API_KEY).
+services:
+  web:
+    build: .
+    image: mellinium-immo-web
+    container_name: mellinium-web
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-mellinium}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/${POSTGRES_DB:-mellinium}
+      CRM_API_KEY: ${CRM_API_KEY:?Set CRM_API_KEY in .env}
+      SITE_URL: https://${SITE_DOMAIN:-melliniumimmobiliere.tn}
+      MEDIA_DIR: /data/media
+      # Contact form: sent through the agency's OVH Zimbra mailbox, delivered to MAIL_TO.
+      SMTP_HOST: ${SMTP_HOST:-smtp.mail.ovh.net}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:?Set SMTP_USER in .env}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:?Set SMTP_PASSWORD in .env}
+      MAIL_TO: ${MAIL_TO:-contact@melliniumimmobiliere.tn}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Site Mellinium Immobilière}
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
+    volumes:
+      - media:/data/media
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:17-alpine
+    container_name: mellinium-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mellinium}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-mellinium}
+    # Not published on the host: only `web` reaches it, on the compose network.
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  media:

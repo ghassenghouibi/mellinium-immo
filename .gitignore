@@ -33,3 +33,9 @@ dist-ssr
 
 # Vercel (CLI link + prebuilt output)
 .vercel
+
+# Local secrets and data (Docker / CRM publishing)
+.env.*
+!.env.example
+.data
+backups

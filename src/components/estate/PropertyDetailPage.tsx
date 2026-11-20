@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { agency, whatsappHref } from "@/lib/agency";
 import { useI18n } from "@/lib/i18n";
+import { useCatalog } from "@/lib/catalog";
 import { formatAmount, formatPrice, getArea, getSimilarProperties, propertyTypeLabels, type Property } from "@/lib/properties";
 import { PhotoLightbox } from "./PhotoLightbox";
 import { PhoneContact, SocialIcon } from "./SocialLinks";
@@ -19,15 +20,17 @@ export function PropertyDetailPage({ property }: { property: Property }) {
   const showPrevious = () => setActivePhoto((current) => (current - 1 + photoCount) % photoCount);
   const showNext = () => setActivePhoto((current) => (current + 1) % photoCount);
   const district = getArea(property.district);
-  const similar = getSimilarProperties(property);
+  const similar = getSimilarProperties(useCatalog().properties, property);
   const isRental = property.transaction === "location";
+  const isClosed = property.status === "closed";
+  const statusLabel = isClosed ? (isRental ? t({ fr: "Loué", en: "Rented" }) : t({ fr: "Vendu", en: "Sold" })) : isRental ? t({ fr: "À louer", en: "For rent" }) : t({ fr: "À vendre", en: "For sale" });
 
   const specs = [
-    { icon: Maximize2, value: `${property.area} m²`, label: t({ fr: "Surface habitable", en: "Living area" }) },
-    { icon: BedDouble, value: String(property.bedrooms), label: t({ fr: "Chambres", en: "Bedrooms" }) },
-    { icon: Bath, value: String(property.bathrooms), label: t({ fr: "Salles de bain", en: "Bathrooms" }) },
-    property.land ? { icon: LandPlot, value: `${property.land} m²`, label: t({ fr: "Terrain", en: "Land" }) } : { icon: MapPin, value: String(property.rooms), label: t({ fr: "Pièces", en: "Rooms" }) },
-  ];
+    property.area > 0 && { icon: Maximize2, value: `${property.area} m²`, label: t({ fr: "Surface", en: "Surface" }) },
+    property.bedrooms > 0 && { icon: BedDouble, value: String(property.bedrooms), label: t({ fr: "Chambres", en: "Bedrooms" }) },
+    property.bathrooms > 0 && { icon: Bath, value: String(property.bathrooms), label: t({ fr: "Salles de bain", en: "Bathrooms" }) },
+    property.land ? { icon: LandPlot, value: `${property.land} m²`, label: t({ fr: "Terrain", en: "Land" }) } : property.rooms > 0 && { icon: MapPin, value: String(property.rooms), label: t({ fr: "Pièces", en: "Rooms" }) },
+  ].filter((spec) => spec !== false);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -40,12 +43,12 @@ export function PropertyDetailPage({ property }: { property: Property }) {
               <div>
                 <p className="flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4 text-primary" />{property.district}, {property.city} · {t(propertyTypeLabels[property.type].singular)}</p>
                 <h1 className="mt-3 font-display text-[clamp(3rem,7vw,6rem)] font-medium leading-[.92]">{property.name}</h1>
-                <p className="mt-3 text-lg italic text-primary">{t(property.highlight)}</p>
+                {property.highlight && <p className="mt-3 text-lg italic text-primary">{t(property.highlight)}</p>}
               </div>
               <div className="lg:text-right">
                 <p className="eyebrow text-muted-foreground">{isRental ? t({ fr: "Loyer mensuel", en: "Monthly rent" }) : t({ fr: "Prix de vente", en: "Sale price" })}</p>
                 <p className="mt-2 font-display text-4xl md:text-5xl">{formatPrice(property, lang)}</p>
-                {!isRental && <p className="mt-1 text-sm text-muted-foreground">{t({ fr: "soit", en: "i.e." })} {formatAmount(Math.round(property.price / property.area), lang)} / m²</p>}
+                {!isRental && !isClosed && property.price > 0 && property.area > 0 && <p className="mt-1 text-sm text-muted-foreground">{t({ fr: "soit", en: "i.e." })} {formatAmount(Math.round(property.price / property.area), lang)} / m²</p>}
               </div>
             </div>
           </div>
@@ -59,8 +62,8 @@ export function PropertyDetailPage({ property }: { property: Property }) {
                 <span className="property-cover-hint"><Expand />{t({ fr: "Plein écran", en: "Full screen" })}</span>
               </button>
               <div className="absolute left-4 top-4 flex gap-2">
-                <span className="property-badge">{isRental ? t({ fr: "À louer", en: "For rent" }) : t({ fr: "À vendre", en: "For sale" })}</span>
-                {property.badge && <span className="property-badge !bg-primary !text-primary-foreground">{t(property.badge)}</span>}
+                <span className="property-badge">{statusLabel}</span>
+                {property.badge && !isClosed && <span className="property-badge !bg-primary !text-primary-foreground">{t(property.badge)}</span>}
               </div>
               <div className="absolute bottom-4 right-4 flex items-center gap-2">
                 <button type="button" onClick={() => setViewerOpen(true)} className="mr-1 flex items-center gap-2 rounded-full bg-ink/45 px-4 py-2 text-xs text-on-image backdrop-blur-md transition-colors hover:bg-ink/65"><Images className="h-4 w-4" /> {activePhoto + 1} / {photoCount} · {t({ fr: "Voir toutes les photos", en: "View all photos" })}</button>
@@ -82,10 +85,12 @@ export function PropertyDetailPage({ property }: { property: Property }) {
               </div>
               <p className="eyebrow eyebrow-rule mt-14 text-primary">{t({ fr: "Le bien", en: "The property" })}</p>
               <h2 className="section-title mt-5">{t({ fr: "Un lieu choisi,", en: "A carefully chosen home," })}<br /><em>{t({ fr: "pour votre mode de vie.", en: "for your lifestyle." })}</em></h2>
-              <p className="mt-8 max-w-2xl text-lg leading-9 text-muted-foreground">{t(property.summary)}</p>
+              <p className="mt-8 max-w-2xl whitespace-pre-line text-lg leading-9 text-muted-foreground">{t(property.summary)}</p>
 
-              <p className="eyebrow eyebrow-rule mt-16 text-primary">{t({ fr: "Prestations", en: "Features" })}</p>
-              <ul className="mt-6 grid gap-x-8 sm:grid-cols-2">{property.features.map((feature) => <li key={feature.en} className="flex items-center gap-3 border-b border-border py-4 text-sm"><Check className="h-4 w-4 text-primary" />{t(feature)}</li>)}</ul>
+              {property.features.length > 0 && <>
+                <p className="eyebrow eyebrow-rule mt-16 text-primary">{t({ fr: "Prestations", en: "Features" })}</p>
+                <ul className="mt-6 grid gap-x-8 sm:grid-cols-2">{property.features.map((feature) => <li key={feature.en} className="flex items-center gap-3 border-b border-border py-4 text-sm"><Check className="h-4 w-4 text-primary" />{t(feature)}</li>)}</ul>
+              </>}
 
               {district && (
                 <div className="mt-16 bg-panel p-8 md:p-10">
@@ -105,7 +110,7 @@ export function PropertyDetailPage({ property }: { property: Property }) {
               <Button asChild className="mt-8 h-12 w-full rounded-full"><a href={`mailto:${agency.email}?subject=${encodeURIComponent(`${t({ fr: "Visite", en: "Visit" })} — ${property.name} (${property.district})`)}`}>{t({ fr: "Organiser une visite", en: "Arrange a visit" })} <ArrowRight /></a></Button>
               <Button asChild variant="outline" className="mt-3 h-12 w-full rounded-full"><a href={`${whatsappHref}?text=${encodeURIComponent(`${t({ fr: "Bonjour, je suis intéressé(e) par", en: "Hello, I am interested in" })} ${property.name} (${property.district}).`)}`} target="_blank" rel="noreferrer"><SocialIcon id="whatsapp" /> WhatsApp</a></Button>
               <div className="mt-5 grid gap-3 border-t border-border pt-5 text-sm">{agency.phones.map((phone) => <PhoneContact key={phone.href} phone={phone} className="justify-between" />)}</div>
-              <p className="mt-5 text-center text-xs text-muted-foreground">{t({ fr: "Référence :", en: "Reference:" })} {property.id.toUpperCase().slice(0, 12)}</p>
+              <p className="mt-5 text-center text-xs text-muted-foreground">{t({ fr: "Référence :", en: "Reference:" })} {property.reference ?? property.id.toUpperCase().slice(0, 12)}</p>
             </aside>
           </div>
         </section>

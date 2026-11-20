@@ -1,19 +1,19 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { PropertyDetailPage } from "@/components/estate/PropertyDetailPage";
-import { getProperty } from "@/lib/properties";
+import { catalogFrom, catalogQuery } from "@/lib/catalog";
 
 export const Route = createFileRoute("/biens/$propertyId")({
   ssr: false,
-  loader: ({ params }) => {
-    const property = getProperty(params.propertyId);
+  loader: async ({ context, params }) => {
+    const property = catalogFrom(await context.queryClient.ensureQueryData(catalogQuery)).find(params.propertyId);
     if (!property) throw notFound();
     return property;
   },
   head: ({ loaderData }) => ({ meta: [
     { title: loaderData ? `${loaderData.name} — ${loaderData.district} | Mellinium Immobilière` : "Property unavailable — Mellinium" },
-    { name: "description", content: loaderData?.summary.en ?? "This property is no longer available." },
+    { name: "description", content: loaderData ? loaderData.summary.en || `${loaderData.name} — ${loaderData.district}` : "This property is no longer available." },
     { property: "og:title", content: loaderData ? `${loaderData.name} — Mellinium Immobilière` : "Property unavailable" },
-    { property: "og:description", content: loaderData?.summary.en ?? "This property is no longer available." },
+    { property: "og:description", content: loaderData ? loaderData.summary.en || `${loaderData.name} — ${loaderData.district}` : "This property is no longer available." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ]}),

@@ -6,7 +6,8 @@ import salon from "@/assets/tour/03-salon.jpg";
 import { Button } from "@/components/ui/button";
 import { agency } from "@/lib/agency";
 import { useI18n } from "@/lib/i18n";
-import { districts, featureFilters, formatAmount, properties, propertyTypeLabels, propertyTypes, rentBudgets, saleBudgets, type PropertyTransaction, type PropertyType } from "@/lib/properties";
+import { useCatalog } from "@/lib/catalog";
+import { featureFilters, formatAmount, propertyTypeLabels, rentBudgets, saleBudgets, type PropertyTransaction } from "@/lib/properties";
 import { SegmentedControl, SelectField } from "./fields";
 import { PropertyCard } from "./PropertyCard";
 import { SiteFooter } from "./SiteFooter";
@@ -35,6 +36,7 @@ const intro = {
 export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
   const navigate = useNavigate();
   const { t, lang } = useI18n();
+  const { properties, districts, types: propertyTypes } = useCatalog();
   const transaction = initial.transaction ?? "location";
   const [district, setDistrict] = useState(initial.district ?? "");
   const [type, setType] = useState(initial.type ?? "");
@@ -64,14 +66,14 @@ export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
     if (sort === "price-desc") return [...filtered].sort((a, b) => b.price - a.price);
     if (sort === "area-desc") return [...filtered].sort((a, b) => b.area - a.area);
     return filtered;
-  }, [transaction, district, type, rooms, budget, bedrooms, minArea, feature, sort]);
+  }, [properties, transaction, district, type, rooms, budget, bedrooms, minArea, feature, sort]);
 
   const advancedCount = Number(bedrooms > 0) + Number(minArea > 0) + Number(Boolean(feature));
   const reset = () => { setDistrict(""); setType(""); setRooms(0); setBudget(0); setBedrooms(0); setMinArea(0); setFeature(""); };
   const switchTransaction = (value: PropertyTransaction) => void navigate({ to: "/biens", search: { transaction: value, district: district || undefined, type: type || undefined } });
 
   const areaOptions = [{ value: "", label: t({ fr: "Tous les quartiers", en: "All areas" }) }, ...districts.map((item) => ({ value: item, label: item }))];
-  const typeOptions = [{ value: "", label: t({ fr: "Tous les biens", en: "All properties" }) }, ...propertyTypes.map((item) => ({ value: item, label: t(propertyTypeLabels[item as PropertyType].singular) }))];
+  const typeOptions = [{ value: "", label: t({ fr: "Tous les biens", en: "All properties" }) }, ...propertyTypes.map((item) => ({ value: item, label: t(propertyTypeLabels[item].singular) }))];
   const roomOptions = [{ value: "0", label: t({ fr: "Toutes pièces", en: "Any rooms" }) }, ...[2, 3, 4, 5, 6].map((item) => ({ value: String(item), label: `${item}+ ${t({ fr: "pièces", en: "rooms" })}` }))];
   const budgetOptions = [{ value: "0", label: t({ fr: "Sans limite de budget", en: "No budget limit" }) }, ...budgets.map((item) => ({ value: String(item), label: formatAmount(item, lang) }))];
 

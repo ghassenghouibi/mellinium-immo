@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { PropertySearchPage } from "@/components/estate/PropertySearchPage";
+import { catalogQuery } from "@/lib/catalog";
 
 const searchSchema = z.object({
   transaction: z.enum(["vente", "location"]).optional(),
@@ -13,6 +14,7 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/biens/")({
   ssr: false,
   validateSearch: searchSchema,
+  loader: ({ context }) => context.queryClient.ensureQueryData(catalogQuery),
   head: () => ({ meta: [
     { title: "Homes for rent and sale in Greater Tunis — Mellinium Immobilière" },
     { name: "description", content: "Furnished and unfurnished rentals and homes for sale in La Marsa, Gammarth, Sidi Bou Saïd, Carthage and Les Berges du Lac, selected by Mellinium Immobilière." },

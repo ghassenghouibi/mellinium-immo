@@ -5,7 +5,7 @@ export const agency = {
   name: "Mellinium Immobilière",
   tagline: { fr: "Immobilier & services de relocation", en: "Real Estate & Relocation Services" } satisfies L,
   location: { fr: "La Marsa – Tunisie", en: "La Marsa – Tunisia" } satisfies L,
-  email: "stemelliniumimmo@gmail.com",
+  email: "contact@melliniumimmobiliere.tn",
   /**
    * Les deux numéros répondent aux appels et sur WhatsApp.
    * Le 22 098 006 est le numéro principal : il reste en tête de liste et sert à tous les boutons WhatsApp uniques.

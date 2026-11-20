@@ -8,8 +8,10 @@ import laMarsa from "@/assets/tour/08-la-marsa.jpg";
 import { Button } from "@/components/ui/button";
 import { agency, whatsappHref } from "@/lib/agency";
 import { about, approach, areasIntro, closing, diplomatic, services, servicesIntro, whyUs, type ServiceId } from "@/lib/content";
+import { useCatalog } from "@/lib/catalog";
+import { sendContactRequest } from "@/lib/contact";
 import { useI18n, type L } from "@/lib/i18n";
-import { areas, rentalProperties, saleProperties } from "@/lib/properties";
+import { areas, type PropertyTransaction } from "@/lib/properties";
 import { team } from "@/lib/team";
 import { GuidedSearch } from "./GuidedSearch";
 import { HeroFilm } from "./HeroFilm";
@@ -49,6 +51,7 @@ export function EstateExperience() {
     if (track) track.scrollBy({ left: direction * track.clientWidth * 0.8, behavior: "smooth" });
   };
 
+  const { sale: saleProperties, rental: rentalProperties } = useCatalog();
   const [featuredSale, ...otherSales] = saleProperties;
 
   return (
@@ -126,7 +129,7 @@ export function EstateExperience() {
                 <Button asChild className="h-12 rounded-full px-6"><Link to="/biens" search={{ transaction: "location" }}>{t({ fr: "Toutes les locations", en: "All rentals" })} <ArrowRight /></Link></Button>
               </div>
             </div>
-            <div ref={rentalTrack} className="rental-track mt-14">{rentalProperties.map((property) => <PropertyCard key={property.id} property={property} />)}</div>
+            {rentalProperties.length ? <div ref={rentalTrack} className="rental-track mt-14">{rentalProperties.map((property) => <PropertyCard key={property.id} property={property} />)}</div> : <CatalogEmpty transaction="location" />}
           </div>
         </section>
 
@@ -168,10 +171,12 @@ export function EstateExperience() {
               <div><p className="eyebrow eyebrow-rule text-primary">{t({ fr: "Biens à la une · À vendre", en: "Featured · For sale" })}</p><h2 className="section-title mt-5">{t({ fr: "Investir ou s’établir", en: "Invest or settle" })}<br /><em>{t({ fr: "durablement en Tunisie.", en: "long-term in Tunisia." })}</em></h2></div>
               <Button asChild variant="outline" className="h-12 rounded-full px-6"><Link to="/biens" search={{ transaction: "vente" }}>{t({ fr: "Tous les biens à vendre", en: "All homes for sale" })} ({saleProperties.length}) <ArrowRight /></Link></Button>
             </div>
-            <div className="stagger-grid mt-14 grid gap-7 md:grid-cols-2 lg:grid-cols-3">
-              {featuredSale && <PropertyCard property={featuredSale} featured />}
-              {otherSales.slice(0, 3).map((property) => <PropertyCard key={property.id} property={property} />)}
-            </div>
+            {featuredSale ? (
+              <div className="stagger-grid mt-14 grid gap-7 md:grid-cols-2 lg:grid-cols-3">
+                <PropertyCard property={featuredSale} featured />
+                {otherSales.slice(0, 3).map((property) => <PropertyCard key={property.id} property={property} />)}
+              </div>
+            ) : <CatalogEmpty transaction="vente" />}
           </div>
         </section>
 
@@ -275,8 +280,8 @@ function TeamSection() {
 }
 
 function ContactSection() {
-  const { t } = useI18n();
-  const [sent, setSent] = useState(false);
+  const { t, lang } = useI18n();
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "mailto" | "rate-limited" | "failed">("idle");
   const [project, setProject] = useState(0);
   const projects: L[] = [
     { fr: "Location", en: "Rental" },
@@ -286,10 +291,39 @@ function ContactSection() {
     { fr: "Gestion de bien", en: "Property management" },
   ];
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const data = new FormData(form);
     const projectLabel = t(projects[project] ?? { fr: "Location", en: "Rental" });
+    setStatus("sending");
+    try {
+      const result = await sendContactRequest({
+        data: {
+          name: String(data.get("name") ?? ""),
+          phone: String(data.get("phone") ?? ""),
+          email: String(data.get("email") ?? ""),
+          project: (projects[project] ?? { fr: "Location", en: "Rental" }).fr,
+          message: String(data.get("message") ?? ""),
+          page: window.location.href,
+          lang,
+          website: String(data.get("website") ?? ""),
+        },
+      });
+      if (result.sent) {
+        form.reset();
+        setStatus("sent");
+        return;
+      }
+      if (result.reason !== "not-configured") {
+        setStatus(result.reason);
+        return;
+      }
+    } catch {
+      setStatus("failed");
+      return;
+    }
+    // No SMTP configured (Lovable preview): hand the request to the visitor's mail app instead.
     const body = [
       `${t({ fr: "Nom", en: "Name" })} : ${data.get("name")}`,
       `${t({ fr: "Téléphone", en: "Phone" })} : ${data.get("phone")}`,
@@ -299,7 +333,7 @@ function ContactSection() {
       String(data.get("message") ?? ""),
     ].join("\n");
     window.location.href = `mailto:${agency.email}?subject=${encodeURIComponent(`${projectLabel} — ${data.get("name")}`)}&body=${encodeURIComponent(body)}`;
-    setSent(true);
+    setStatus("mailto");
   };
 
   return (
@@ -328,11 +362,30 @@ function ContactSection() {
           <TextField className="md:col-span-2" label="E-mail" name="email" type="email" required autoComplete="email" />
           <SelectField variant="underline" className="md:col-span-2" label={t({ fr: "Votre projet", en: "Your project" })} value={String(project)} onValueChange={(value) => setProject(Number(value))} options={projects.map((item, index) => ({ value: String(index), label: t(item) }))} />
           <TextAreaField className="md:col-span-2" label="Message" name="message" rows={3} placeholder={t({ fr: "Quartier, budget, date d’arrivée, meublé ou non…", en: "Area, budget, arrival date, furnished or not…" })} />
-          <Button type="submit" className="h-12 rounded-full md:col-span-2">{t({ fr: "Envoyer ma demande", en: "Send my request" })} <ArrowRight /></Button>
+          {/* Champ piège : invisible pour les visiteurs, rempli par les robots. */}
+          <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute -left-[9999px] h-px w-px opacity-0" />
+          <Button type="submit" disabled={status === "sending"} className="h-12 rounded-full md:col-span-2">{status === "sending" ? t({ fr: "Envoi en cours…", en: "Sending…" }) : t({ fr: "Envoyer ma demande", en: "Send my request" })} <ArrowRight /></Button>
           <Button asChild variant="outline" className="h-12 rounded-full md:col-span-2"><a href={whatsappHref} target="_blank" rel="noreferrer"><SocialIcon id="whatsapp" /> {t({ fr: "Ou écrivez-nous sur WhatsApp", en: "Or message us on WhatsApp" })}</a></Button>
-          {sent && <p className="text-center text-sm text-muted-foreground md:col-span-2" role="status">{t({ fr: "Votre messagerie s’est ouverte avec votre demande pré-remplie.", en: "Your email app opened with your request pre-filled." })}</p>}
+          {status === "sent" && <p className="text-center text-sm text-primary md:col-span-2" role="status">{t({ fr: "Merci, votre demande nous a bien été transmise. Nous revenons vers vous très rapidement.", en: "Thank you, your request has been sent. We will get back to you very shortly." })}</p>}
+          {status === "mailto" && <p className="text-center text-sm text-muted-foreground md:col-span-2" role="status">{t({ fr: "Votre messagerie s’est ouverte avec votre demande pré-remplie.", en: "Your email app opened with your request pre-filled." })}</p>}
+          {status === "rate-limited" && <p className="text-center text-sm text-destructive md:col-span-2" role="alert">{t({ fr: "Vous avez déjà envoyé plusieurs demandes. Réessayez dans quelques minutes, ou contactez-nous sur WhatsApp.", en: "You have already sent several requests. Please try again in a few minutes, or message us on WhatsApp." })}</p>}
+          {status === "failed" && <p className="text-center text-sm text-destructive md:col-span-2" role="alert">{t({ fr: `L’envoi a échoué. Écrivez-nous à ${agency.email} ou sur WhatsApp.`, en: `Sending failed. Email us at ${agency.email} or message us on WhatsApp.` })}</p>}
         </form>
       </div>
     </section>
+  );
+}
+
+/** Aucun bien publié pour l’instant (site fraîchement déployé, ou tout est loué / vendu). */
+function CatalogEmpty({ transaction }: { transaction: PropertyTransaction }) {
+  const { t } = useI18n();
+  const isRental = transaction === "location";
+  return (
+    <div className="mt-14 border border-border bg-card px-6 py-16 text-center">
+      <Search className="mx-auto h-7 w-7 text-primary" />
+      <p className="mt-5 font-display text-3xl md:text-4xl">{isRental ? t({ fr: "Nos prochaines locations arrivent bientôt.", en: "Our next rentals are coming soon." }) : t({ fr: "Nos prochains biens à vendre arrivent bientôt.", en: "Our next homes for sale are coming soon." })}</p>
+      <p className="mx-auto mt-3 max-w-md text-sm leading-7 text-muted-foreground">{t({ fr: "Confiez-nous votre recherche : nous vous proposons aussi les biens présentés en toute discrétion.", en: "Entrust us with your search: we also offer you properties presented discreetly." })}</p>
+      <Button asChild className="mt-7 rounded-full"><a href={`mailto:${agency.email}?subject=${encodeURIComponent(isRental ? t({ fr: "Recherche de location", en: "Rental search" }) : t({ fr: "Recherche d’achat", en: "Purchase search" }))}`}>{t({ fr: "Confier ma recherche", en: "Entrust my search" })} <ArrowRight /></a></Button>
+    </div>
   );
 }

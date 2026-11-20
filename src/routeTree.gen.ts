@@ -11,8 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BiensRouteImport } from './routes/biens'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ApiHealthRouteImport } from './routes/api.health'
 import { Route as BiensIndexRouteImport } from './routes/biens.index'
 import { Route as BiensPropertyIdRouteImport } from './routes/biens.$propertyId'
+import { Route as MediaSplatRouteImport } from './routes/media.$'
+import { Route as ApiPropertiesCrmRouteImport } from './routes/api.properties.crm'
+import { Route as ApiPropertiesCrmReferenceRouteImport } from './routes/api.properties.crm.$reference'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,6 +27,16 @@ const IndexRoute = IndexRouteImport.update({
 const BiensRoute = BiensRouteImport.update({
   id: '/biens',
   path: '/biens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BiensIndexRoute = BiensIndexRouteImport.update({
@@ -34,36 +49,98 @@ const BiensPropertyIdRoute = BiensPropertyIdRouteImport.update({
   path: '/$propertyId',
   getParentRoute: () => BiensRoute,
 } as any)
+const MediaSplatRoute = MediaSplatRouteImport.update({
+  id: '/media/$',
+  path: '/media/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPropertiesCrmRoute = ApiPropertiesCrmRouteImport.update({
+  id: '/api/properties/crm',
+  path: '/api/properties/crm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPropertiesCrmReferenceRoute =
+  ApiPropertiesCrmReferenceRouteImport.update({
+    id: '/$reference',
+    path: '/$reference',
+    getParentRoute: () => ApiPropertiesCrmRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/biens': typeof BiensRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/health': typeof ApiHealthRoute
   '/biens/$propertyId': typeof BiensPropertyIdRoute
+  '/media/$': typeof MediaSplatRoute
   '/biens/': typeof BiensIndexRoute
+  '/api/properties/crm': typeof ApiPropertiesCrmRouteWithChildren
+  '/api/properties/crm/$reference': typeof ApiPropertiesCrmReferenceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/health': typeof ApiHealthRoute
   '/biens/$propertyId': typeof BiensPropertyIdRoute
+  '/media/$': typeof MediaSplatRoute
   '/biens': typeof BiensIndexRoute
+  '/api/properties/crm': typeof ApiPropertiesCrmRouteWithChildren
+  '/api/properties/crm/$reference': typeof ApiPropertiesCrmReferenceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/biens': typeof BiensRouteWithChildren
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/api/health': typeof ApiHealthRoute
   '/biens/$propertyId': typeof BiensPropertyIdRoute
+  '/media/$': typeof MediaSplatRoute
   '/biens/': typeof BiensIndexRoute
+  '/api/properties/crm': typeof ApiPropertiesCrmRouteWithChildren
+  '/api/properties/crm/$reference': typeof ApiPropertiesCrmReferenceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/biens' | '/biens/$propertyId' | '/biens/'
+  fullPaths:
+    | '/'
+    | '/biens'
+    | '/sitemap.xml'
+    | '/api/health'
+    | '/biens/$propertyId'
+    | '/media/$'
+    | '/biens/'
+    | '/api/properties/crm'
+    | '/api/properties/crm/$reference'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/biens/$propertyId' | '/biens'
-  id: '__root__' | '/' | '/biens' | '/biens/$propertyId' | '/biens/'
+  to:
+    | '/'
+    | '/sitemap.xml'
+    | '/api/health'
+    | '/biens/$propertyId'
+    | '/media/$'
+    | '/biens'
+    | '/api/properties/crm'
+    | '/api/properties/crm/$reference'
+  id:
+    | '__root__'
+    | '/'
+    | '/biens'
+    | '/sitemap.xml'
+    | '/api/health'
+    | '/biens/$propertyId'
+    | '/media/$'
+    | '/biens/'
+    | '/api/properties/crm'
+    | '/api/properties/crm/$reference'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BiensRoute: typeof BiensRouteWithChildren
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiHealthRoute: typeof ApiHealthRoute
+  MediaSplatRoute: typeof MediaSplatRoute
+  ApiPropertiesCrmRoute: typeof ApiPropertiesCrmRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +159,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BiensRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/biens/': {
       id: '/biens/'
       path: '/'
@@ -95,6 +186,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/biens/$propertyId'
       preLoaderRoute: typeof BiensPropertyIdRouteImport
       parentRoute: typeof BiensRoute
+    }
+    '/media/$': {
+      id: '/media/$'
+      path: '/media/$'
+      fullPath: '/media/$'
+      preLoaderRoute: typeof MediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/properties/crm': {
+      id: '/api/properties/crm'
+      path: '/api/properties/crm'
+      fullPath: '/api/properties/crm'
+      preLoaderRoute: typeof ApiPropertiesCrmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/properties/crm/$reference': {
+      id: '/api/properties/crm/$reference'
+      path: '/$reference'
+      fullPath: '/api/properties/crm/$reference'
+      preLoaderRoute: typeof ApiPropertiesCrmReferenceRouteImport
+      parentRoute: typeof ApiPropertiesCrmRoute
     }
   }
 }
@@ -111,9 +223,24 @@ const BiensRouteChildren: BiensRouteChildren = {
 
 const BiensRouteWithChildren = BiensRoute._addFileChildren(BiensRouteChildren)
 
+interface ApiPropertiesCrmRouteChildren {
+  ApiPropertiesCrmReferenceRoute: typeof ApiPropertiesCrmReferenceRoute
+}
+
+const ApiPropertiesCrmRouteChildren: ApiPropertiesCrmRouteChildren = {
+  ApiPropertiesCrmReferenceRoute: ApiPropertiesCrmReferenceRoute,
+}
+
+const ApiPropertiesCrmRouteWithChildren =
+  ApiPropertiesCrmRoute._addFileChildren(ApiPropertiesCrmRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BiensRoute: BiensRouteWithChildren,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiHealthRoute: ApiHealthRoute,
+  MediaSplatRoute: MediaSplatRoute,
+  ApiPropertiesCrmRoute: ApiPropertiesCrmRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

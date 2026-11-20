@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { EstateExperience } from "@/components/estate/EstateExperience";
+import { catalogQuery } from "@/lib/catalog";
 
 export const Route = createFileRoute("/")({
   ssr: false,
+  loader: ({ context }) => context.queryClient.ensureQueryData(catalogQuery),
   head: () => ({
     meta: [
       { title: "Mellinium Immobilière — Real Estate & Relocation Services, La Marsa – Tunisia" },

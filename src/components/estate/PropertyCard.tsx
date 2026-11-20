@@ -28,12 +28,12 @@ export function PropertyCard({ property, featured = false }: { property: Propert
           <h3 className={`font-display font-medium leading-tight ${featured ? "text-4xl md:text-5xl" : "text-3xl"}`}>{property.name}</h3>
           <span className="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border transition-colors group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"><ArrowUpRight className="h-4 w-4" /></span>
         </div>
-        <p className="mt-2 text-sm italic text-primary">{t(property.highlight)}</p>
+        {property.highlight && <p className="mt-2 text-sm italic text-primary">{t(property.highlight)}</p>}
         {featured && <p className="mt-5 max-w-md text-sm leading-7 text-muted-foreground">{t(property.summary)}</p>}
         <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5"><Maximize2 className="h-4 w-4" />{property.area} m²</span>
-          <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4" />{property.bedrooms} {t({ fr: "ch.", en: "bd" })}</span>
-          <span className="flex items-center gap-1.5"><Bath className="h-4 w-4" />{property.bathrooms} {t({ fr: "sdb", en: "ba" })}</span>
+          {property.area > 0 && <span className="flex items-center gap-1.5"><Maximize2 className="h-4 w-4" />{property.area} m²</span>}
+          {property.bedrooms > 0 && <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4" />{property.bedrooms} {t({ fr: "ch.", en: "bd" })}</span>}
+          {property.bathrooms > 0 && <span className="flex items-center gap-1.5"><Bath className="h-4 w-4" />{property.bathrooms} {t({ fr: "sdb", en: "ba" })}</span>}
         </div>
         <p className="mt-auto pt-5 text-lg font-semibold text-foreground">{formatPrice(property, lang)}</p>
       </div>
