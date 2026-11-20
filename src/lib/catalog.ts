@@ -2,7 +2,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 import { useMemo } from "react";
 import placeholder from "@/assets/tour/01-facade.jpg";
-import { areas, demoProperties, typesIn, type Property } from "./properties";
+import { demoProperties, placesIn, typesIn, type Property } from "./properties";
 
 type CatalogResponse = { source: "demo" } | { source: "crm"; properties: Property[] };
 
@@ -34,22 +34,16 @@ export type Catalog = ReturnType<typeof buildCatalog>;
 
 function buildCatalog(all: Property[]) {
   const available = all.filter((property) => property.status !== "closed");
-  const knownAreas = new Set(areas.map((area) => area.name));
   return {
     /** Biens disponibles (vendus et loués exclus). */
     properties: available,
     sale: available.filter((property) => property.transaction === "vente"),
     rental: available.filter((property) => property.transaction === "location"),
     types: typesIn(available),
-    /** Quartiers de la brochure, puis ceux des biens publiés hors de ces quartiers. */
-    districts: [
-      ...knownAreas,
-      ...new Set(
-        available
-          .map((property) => property.district)
-          .filter((district) => !knownAreas.has(district)),
-      ),
-    ],
+    /** Délégations et localités des biens disponibles, avec les noms du CRM. */
+    places: placesIn(available),
+    rentalPlaces: placesIn(available.filter((property) => property.transaction === "location")),
+    salePlaces: placesIn(available.filter((property) => property.transaction === "vente")),
     /** Toute fiche, y compris vendue ou louée, pour que les liens déjà partagés restent valides. */
     find: (id: string) => all.find((property) => property.id === id),
     all,

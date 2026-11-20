@@ -8,7 +8,6 @@ import {
   publicationTagLabels,
   type PropertyType,
 } from "@/lib/property-labels";
-import { areas } from "@/lib/property-areas";
 import { db } from "./db";
 import { removePhotos, storePhotos } from "./media";
 
@@ -53,7 +52,11 @@ export const crmPayloadSchema = z
     longitude: number,
     amenities: z.array(z.string()).nullish(),
     tags: z.array(z.object({ key: z.string(), value: z.string().nullish() })).nullish(),
-    images: z.array(z.string()).max(60).default([]),
+    // Extra photos are dropped rather than refusing the whole listing.
+    images: z
+      .array(z.string())
+      .default([])
+      .transform((urls) => urls.slice(0, 60)),
   })
   .passthrough();
 
@@ -161,7 +164,20 @@ export async function listListings(): Promise<Property[]> {
 
 // ——— CRM → site ———
 
-const coveredAreas = new Map(areas.map((area) => [slugify(area.name), area.name]));
+/**
+ * Le CRM nomme les villes « Délégation - Localité » (« La Marsa - Gammarth Supérieur ») : le site affiche
+ * ces noms tels quels, la localité comme quartier et la délégation comme ville.
+ */
+function locationOf(payload: CrmPayload): { district: string; city: string } {
+  const name = (payload.city ?? "").trim();
+  if (!name) return { district: payload.address?.trim() || "Tunisie", city: "Tunisie" };
+  const [delegation = name, ...rest] = name
+    .split(/\s+-\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (!rest.length) return { district: delegation, city: "Tunisie" };
+  return { district: rest.join(" - "), city: delegation };
+}
 
 function same(value: string): L {
   return { fr: value, en: value };
@@ -219,8 +235,7 @@ export function toProperty(row: ListingRow): Property {
     ? payload.property_type
     : "autre";
   const residential = !nonResidentialTypes.has(type);
-  const district =
-    coveredAreas.get(slugify(payload.city ?? "")) ?? payload.city ?? payload.address ?? "Tunisie";
+  const { district, city } = locationOf(payload);
   const bedrooms = residential ? (payload.rooms ?? 0) : 0;
   // In Tunisia an « S+3 » has three bedrooms plus the living room: rooms = bedrooms + salons.
   const rooms = residential
@@ -236,7 +251,7 @@ export function toProperty(row: ListingRow): Property {
     reference: row.reference,
     status: row.status,
     transaction: transactionOf(payload),
-    city: coveredAreas.has(slugify(district)) ? "Grand Tunis" : "Tunisie",
+    city,
     district,
     type,
     name: payload.title || `Bien ${row.reference}`,

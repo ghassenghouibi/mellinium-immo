@@ -9,7 +9,13 @@ const searchSchema = z.object({
   type: z.string().optional(),
   rooms: z.coerce.number().optional(),
   budget: z.coerce.number().optional(),
+  bedrooms: z.coerce.number().optional(),
+  area: z.coerce.number().optional(),
+  feature: z.string().optional(),
+  sort: z.enum(["recent", "price-asc", "price-desc", "area-desc"]).optional(),
 });
+
+export type PropertySearch = z.infer<typeof searchSchema>;
 
 export const Route = createFileRoute("/biens/")({
   ssr: false,
@@ -27,6 +33,6 @@ export const Route = createFileRoute("/biens/")({
 });
 
 function BiensPage() {
-  const search = Route.useSearch();
-  return <PropertySearchPage key={`${search.transaction}-${search.district}-${search.type}`} initial={search} />;
+  // Every criterion lives in the URL: a shared or reloaded link shows the same results.
+  return <PropertySearchPage search={Route.useSearch()} />;
 }

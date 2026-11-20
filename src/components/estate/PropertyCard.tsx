@@ -29,7 +29,7 @@ export function PropertyCard({ property, featured = false }: { property: Propert
           <span className="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border transition-colors group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"><ArrowUpRight className="h-4 w-4" /></span>
         </div>
         {property.highlight && <p className="mt-2 text-sm italic text-primary">{t(property.highlight)}</p>}
-        {featured && <p className="mt-5 max-w-md text-sm leading-7 text-muted-foreground">{t(property.summary)}</p>}
+        {featured && <p className="mt-5 line-clamp-4 max-w-md text-sm leading-7 text-muted-foreground">{t(property.summary)}</p>}
         <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
           {property.area > 0 && <span className="flex items-center gap-1.5"><Maximize2 className="h-4 w-4" />{property.area} m²</span>}
           {property.bedrooms > 0 && <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4" />{property.bedrooms} {t({ fr: "ch.", en: "bd" })}</span>}

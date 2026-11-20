@@ -246,7 +246,73 @@ export const demoProperties: Property[] = [
   },
 ];
 
-export const districts = areas.map((area) => area.name);
+// ——— Lieux : les noms du référentiel de villes du CRM (« Délégation - Localité ») ———
+
+function compact(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+/** Le bien n’a pas de délégation quand le CRM ne donne qu’un nom de ville. */
+function delegationOf(property: Property) {
+  return property.city && property.city !== "Tunisie" ? property.city : undefined;
+}
+
+/** Valeur de filtre d’un bien : le nom du CRM, « La Marsa - Gammarth Supérieur ». */
+export function placeValue(property: Property) {
+  const delegation = delegationOf(property);
+  return delegation ? `${delegation} - ${property.district}` : property.district;
+}
+
+/** « La Marsa - Gammarth Supérieur » → « Gammarth Supérieur, La Marsa », pour les phrases. */
+export function placeName(value: string) {
+  const [delegation, ...rest] = value.split(" - ");
+  return rest.length ? `${rest.join(" - ")}, ${delegation}` : value;
+}
+
+/**
+ * Vrai si le bien est dans le lieu demandé : une délégation (« La Marsa »), un nom complet du CRM
+ * (« La Marsa - Gammarth Supérieur ») ou le début d’une localité (« Gammarth »), accents et tirets ignorés.
+ */
+export function matchesPlace(property: Property, place: string) {
+  const query = compact(place);
+  if (!query) return true;
+  return [delegationOf(property), property.district, placeValue(property)].some(
+    (value) => value !== undefined && compact(value).startsWith(query),
+  );
+}
+
+export type PlaceGroup = { delegation: string; localities: string[] };
+
+/** Lieux des biens publiés, regroupés par délégation et triés, pour les listes de quartiers. */
+export function placesIn(list: Property[]): PlaceGroup[] {
+  const groups = new Map<string, Set<string>>();
+  for (const property of list) {
+    const delegation = delegationOf(property) ?? property.district;
+    const localities = groups.get(delegation) ?? new Set<string>();
+    if (delegationOf(property) && property.district !== delegation) localities.add(property.district);
+    groups.set(delegation, localities);
+  }
+  const byName = (a: string, b: string) => a.localeCompare(b, "fr");
+  return [...groups.keys()].sort(byName).map((delegation) => ({
+    delegation,
+    localities: [...(groups.get(delegation) ?? [])].sort(byName),
+  }));
+}
+
+/** Options du champ « Quartier » : chaque délégation, puis ses localités. */
+export function placeOptions(groups: PlaceGroup[]) {
+  return groups.flatMap(({ delegation, localities }) => [
+    { value: delegation, label: delegation },
+    ...localities.map((locality) => ({
+      value: `${delegation} - ${locality}`,
+      label: `${delegation} · ${locality}`,
+    })),
+  ]);
+}
 
 /** Types présents dans une liste, dans l’ordre du CRM. */
 export function typesIn(list: Property[]): PropertyType[] {
@@ -292,8 +358,14 @@ export function formatPrice(property: Property, lang: Lang) {
   return property.transaction === "location" ? `${formatAmount(property.price, lang)} ${lang === "fr" ? "/ mois" : "/ month"}` : formatAmount(property.price, lang);
 }
 
-export function getArea(name: string) {
-  return areas.find((area) => area.name === name);
+/** Quartier de la brochure où se trouve le bien, la localité primant sur la délégation. */
+export function getArea(property: Property) {
+  const byLength = [...areas].sort((a, b) => b.name.length - a.name.length);
+  const locality = compact(property.district);
+  return (
+    byLength.find((area) => locality.startsWith(compact(area.name))) ??
+    byLength.find((area) => matchesPlace(property, area.name))
+  );
 }
 
 export function getSimilarProperties(list: Property[], property: Property, count = 3) {

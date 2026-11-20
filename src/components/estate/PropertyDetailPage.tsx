@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { agency, whatsappHref } from "@/lib/agency";
 import { useI18n } from "@/lib/i18n";
 import { useCatalog } from "@/lib/catalog";
-import { formatAmount, formatPrice, getArea, getSimilarProperties, propertyTypeLabels, type Property } from "@/lib/properties";
+import { formatAmount, formatPrice, getArea, getSimilarProperties, placeValue, propertyTypeLabels, type Property } from "@/lib/properties";
 import { PhotoLightbox } from "./PhotoLightbox";
 import { PhoneContact, SocialIcon } from "./SocialLinks";
 import { PropertyCard } from "./PropertyCard";
@@ -19,7 +19,7 @@ export function PropertyDetailPage({ property }: { property: Property }) {
   const photoCount = property.gallery.length;
   const showPrevious = () => setActivePhoto((current) => (current - 1 + photoCount) % photoCount);
   const showNext = () => setActivePhoto((current) => (current + 1) % photoCount);
-  const district = getArea(property.district);
+  const district = getArea(property);
   const similar = getSimilarProperties(useCatalog().properties, property);
   const isRental = property.transaction === "location";
   const isClosed = property.status === "closed";
@@ -97,7 +97,7 @@ export function PropertyDetailPage({ property }: { property: Property }) {
                   <p className="eyebrow text-primary">{t({ fr: "Le quartier", en: "The area" })} · {t(district.tagline)}</p>
                   <h3 className="mt-3 font-display text-4xl">{district.name}</h3>
                   <p className="mt-4 max-w-xl leading-8 text-muted-foreground">{t(district.description)}</p>
-                  <Link to="/biens" search={{ transaction: property.transaction, district: district.name }} className="mt-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.14em] text-primary hover:underline">{t({ fr: "Autres biens à", en: "More homes in" })} {district.name} <ArrowRight className="h-4 w-4" /></Link>
+                  <Link to="/biens" search={{ transaction: property.transaction, district: placeValue(property) }} className="mt-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.14em] text-primary hover:underline">{t({ fr: "Autres biens à", en: "More homes in" })} {property.district} <ArrowRight className="h-4 w-4" /></Link>
                 </div>
               )}
             </div>

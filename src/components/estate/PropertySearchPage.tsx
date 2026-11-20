@@ -1,20 +1,20 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { useMemo, useState } from "react";
+import type { PropertySearch } from "@/routes/biens.index";
 import piscine from "@/assets/tour/07-piscine.jpg";
 import salon from "@/assets/tour/03-salon.jpg";
 import { Button } from "@/components/ui/button";
 import { agency } from "@/lib/agency";
 import { useI18n } from "@/lib/i18n";
 import { useCatalog } from "@/lib/catalog";
-import { featureFilters, formatAmount, propertyTypeLabels, rentBudgets, saleBudgets, type PropertyTransaction } from "@/lib/properties";
+import { featureFilters, formatAmount, matchesPlace, placeName, placeOptions, propertyTypeLabels, rentBudgets, saleBudgets, type PropertyTransaction } from "@/lib/properties";
 import { SegmentedControl, SelectField } from "./fields";
 import { PropertyCard } from "./PropertyCard";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
-type InitialSearch = { transaction?: PropertyTransaction | undefined; district?: string | undefined; type?: string | undefined; rooms?: number | undefined; budget?: number | undefined };
-type SortOrder = "recent" | "price-asc" | "price-desc" | "area-desc";
+type SortOrder = NonNullable<PropertySearch["sort"]>;
 
 const intro = {
   vente: {
@@ -33,20 +33,43 @@ const intro = {
   },
 } as const;
 
-export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
+export function PropertySearchPage({ search }: { search: PropertySearch }) {
   const navigate = useNavigate();
   const { t, lang } = useI18n();
-  const { properties, districts, types: propertyTypes } = useCatalog();
-  const transaction = initial.transaction ?? "location";
-  const [district, setDistrict] = useState(initial.district ?? "");
-  const [type, setType] = useState(initial.type ?? "");
-  const [rooms, setRooms] = useState(initial.rooms ?? 0);
-  const [budget, setBudget] = useState(initial.budget ?? 0);
-  const [bedrooms, setBedrooms] = useState(0);
-  const [minArea, setMinArea] = useState(0);
-  const [feature, setFeature] = useState("");
-  const [sort, setSort] = useState<SortOrder>("recent");
+  const { properties, rentalPlaces, salePlaces, types: propertyTypes } = useCatalog();
+  const transaction = search.transaction ?? "location";
+  const district = search.district ?? "";
+  const type = search.type ?? "";
+  const rooms = search.rooms ?? 0;
+  const budget = search.budget ?? 0;
+  const bedrooms = search.bedrooms ?? 0;
+  const minArea = search.area ?? 0;
+  const feature = search.feature ?? "";
+  const sort: SortOrder = search.sort ?? "recent";
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  /** Writes criteria to the URL; empty values (« tous », 0, tri par défaut) are left out of it. */
+  const update = (patch: Partial<PropertySearch>) =>
+    void navigate({
+      to: "/biens",
+      search: (current: PropertySearch) => {
+        const next: Record<string, unknown> = { ...current, ...patch };
+        for (const key of Object.keys(next)) {
+          if (next[key] === "" || next[key] === 0 || (key === "sort" && next[key] === "recent")) next[key] = undefined;
+        }
+        return next as PropertySearch;
+      },
+      replace: true,
+      resetScroll: false,
+    });
+  const setDistrict = (value: string) => update({ district: value });
+  const setType = (value: string) => update({ type: value });
+  const setRooms = (value: number) => update({ rooms: value });
+  const setBudget = (value: number) => update({ budget: value });
+  const setBedrooms = (value: number) => update({ bedrooms: value });
+  const setMinArea = (value: number) => update({ area: value });
+  const setFeature = (value: string) => update({ feature: value });
+  const setSort = (value: SortOrder) => update({ sort: value });
   const budgets = transaction === "vente" ? saleBudgets : rentBudgets;
   const copy = intro[transaction];
 
@@ -54,7 +77,7 @@ export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
     const featureFilter = featureFilters.find((item) => item.value === feature);
     const filtered = properties.filter((property) =>
       property.transaction === transaction &&
-      (!district || property.district === district) &&
+      matchesPlace(property, district) &&
       (!type || property.type === type) &&
       (!rooms || property.rooms >= rooms) &&
       (!budget || property.price <= budget) &&
@@ -69,10 +92,13 @@ export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
   }, [properties, transaction, district, type, rooms, budget, bedrooms, minArea, feature, sort]);
 
   const advancedCount = Number(bedrooms > 0) + Number(minArea > 0) + Number(Boolean(feature));
-  const reset = () => { setDistrict(""); setType(""); setRooms(0); setBudget(0); setBedrooms(0); setMinArea(0); setFeature(""); };
-  const switchTransaction = (value: PropertyTransaction) => void navigate({ to: "/biens", search: { transaction: value, district: district || undefined, type: type || undefined } });
+  const reset = () => void navigate({ to: "/biens", search: { transaction }, replace: true, resetScroll: false });
+  // Rent and sale budgets differ, so the budget is cleared; every other criterion is kept.
+  const switchTransaction = (value: PropertyTransaction) => update({ transaction: value, budget: undefined });
 
-  const areaOptions = [{ value: "", label: t({ fr: "Tous les quartiers", en: "All areas" }) }, ...districts.map((item) => ({ value: item, label: item }))];
+  const areaOptions = [{ value: "", label: t({ fr: "Tous les quartiers", en: "All areas" }) }, ...placeOptions(transaction === "vente" ? salePlaces : rentalPlaces)];
+  // A place reached from a link (brochure area, another page) stays selectable even if not in the list.
+  if (district && !areaOptions.some((option) => option.value === district)) areaOptions.push({ value: district, label: placeName(district) });
   const typeOptions = [{ value: "", label: t({ fr: "Tous les biens", en: "All properties" }) }, ...propertyTypes.map((item) => ({ value: item, label: t(propertyTypeLabels[item].singular) }))];
   const roomOptions = [{ value: "0", label: t({ fr: "Toutes pièces", en: "Any rooms" }) }, ...[2, 3, 4, 5, 6].map((item) => ({ value: String(item), label: `${item}+ ${t({ fr: "pièces", en: "rooms" })}` }))];
   const budgetOptions = [{ value: "0", label: t({ fr: "Sans limite de budget", en: "No budget limit" }) }, ...budgets.map((item) => ({ value: String(item), label: formatAmount(item, lang) }))];
@@ -88,8 +114,8 @@ export function PropertySearchPage({ initial }: { initial: InitialSearch }) {
   );
 
   const countLabel = lang === "fr"
-    ? `${results.length > 1 ? "biens" : "bien"} ${transaction === "vente" ? "à vendre" : "à louer"}${district ? ` à ${district}` : " dans le Grand Tunis"}`
-    : `${results.length === 1 ? "property" : "properties"} ${transaction === "vente" ? "for sale" : "for rent"}${district ? ` in ${district}` : " in Greater Tunis"}`;
+    ? `${results.length > 1 ? "biens" : "bien"} ${transaction === "vente" ? "à vendre" : "à louer"}${district ? ` à ${placeName(district)}` : " dans le Grand Tunis"}`
+    : `${results.length === 1 ? "property" : "properties"} ${transaction === "vente" ? "for sale" : "for rent"}${district ? ` in ${placeName(district)}` : " in Greater Tunis"}`;
 
   return (
     <div className="min-h-screen bg-background text-foreground">

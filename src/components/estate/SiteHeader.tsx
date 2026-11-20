@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { agency, mainNavigation, whatsappHref } from "@/lib/agency";
 import { languages, useI18n } from "@/lib/i18n";
 import { useCatalog } from "@/lib/catalog";
-import { districts, formatPrice, propertyTypeLabels, type PropertyTransaction } from "@/lib/properties";
+import { formatPrice, propertyTypeLabels, type PropertyTransaction } from "@/lib/properties";
 import { SegmentedControl } from "./fields";
 import { PhoneContact, SocialIcon, SocialLinks } from "./SocialLinks";
 
@@ -29,6 +29,7 @@ function MegaPanel({ transaction }: { transaction: PropertyTransaction }) {
   const catalog = useCatalog();
   const list = transaction === "vente" ? catalog.sale : catalog.rental;
   const propertyTypes = catalog.types;
+  const delegations = (transaction === "vente" ? catalog.salePlaces : catalog.rentalPlaces).map((group) => group.delegation);
   const featured = list[0];
   return (
     <div className="mega-panel">
@@ -42,7 +43,7 @@ function MegaPanel({ transaction }: { transaction: PropertyTransaction }) {
         </div>
         <div>
           <p className="eyebrow text-primary">{t({ fr: "Quartiers", en: "Areas" })}</p>
-          <div className="mt-3">{districts.map((district) => <Link key={district} to="/biens" search={{ transaction, district }} className="mega-link">{district}</Link>)}</div>
+          <div className="mt-3">{delegations.map((district) => <Link key={district} to="/biens" search={{ transaction, district }} className="mega-link">{district}</Link>)}</div>
         </div>
         {featured && (
           <Link to="/biens/$propertyId" params={{ propertyId: featured.id }} className="group block">

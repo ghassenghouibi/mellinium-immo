@@ -3,7 +3,8 @@ import { ArrowLeft, ArrowRight, Check, Search } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useI18n, type L } from "@/lib/i18n";
-import { districts, formatAmount, formatCompactAmount, rentBudgets, saleBudgets } from "@/lib/properties";
+import { useCatalog } from "@/lib/catalog";
+import { formatAmount, formatCompactAmount, placeOptions, rentBudgets, saleBudgets } from "@/lib/properties";
 import { SegmentedControl, SelectField } from "./fields";
 
 const allAreas: L = { fr: "Tous les quartiers", en: "All areas" };
@@ -16,6 +17,8 @@ export function GuidedSearch({ hero = false }: { hero?: boolean }) {
   const [rooms, setRooms] = useState(0);
   const [budget, setBudget] = useState(0);
   const budgets = transaction === "vente" ? saleBudgets : rentBudgets;
+  const { rentalPlaces, salePlaces } = useCatalog();
+  const places = transaction === "vente" ? salePlaces : rentalPlaces;
 
   if (!hero) {
     return <AnimatedGuidedSearch />;
@@ -24,6 +27,7 @@ export function GuidedSearch({ hero = false }: { hero?: boolean }) {
   const changeTransaction = (value: "vente" | "location") => {
     setTransaction(value);
     setBudget(0);
+    setDistrict("");
   };
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -58,7 +62,7 @@ export function GuidedSearch({ hero = false }: { hero?: boolean }) {
         label={t({ fr: "Quartier", en: "Area" })}
         value={district}
         onValueChange={setDistrict}
-        options={[{ value: "", label: t(allAreas) }, ...districts.map((item) => ({ value: item, label: item }))]}
+        options={[{ value: "", label: t(allAreas) }, ...placeOptions(places)]}
       />
 
       <SelectField
@@ -100,6 +104,8 @@ function AnimatedGuidedSearch() {
   const [rooms, setRooms] = useState(0);
   const [budget, setBudget] = useState(0);
   const budgets = transaction === "vente" ? saleBudgets : rentBudgets;
+  const { rentalPlaces, salePlaces } = useCatalog();
+  const delegations = (transaction === "vente" ? salePlaces : rentalPlaces).map((group) => group.delegation);
 
   const chooseTransaction = (value: "vente" | "location") => {
     setTransaction(value);
@@ -142,7 +148,7 @@ function AnimatedGuidedSearch() {
         {step > 0 && <Button type="button" variant="ghost" size="icon" className="guided-search-back" aria-label={t({ fr: "Étape précédente", en: "Previous step" })} onClick={() => setStep((current) => current - 1)}><ArrowLeft /></Button>}
         <p className="eyebrow text-primary">{t({ fr: `Étape ${step + 1} sur 4`, en: `Step ${step + 1} of 4` })}</p>
         {step === 0 && <><h3>{t({ fr: "Quel est votre projet ?", en: "What is your project?" })}</h3><div className="guided-search-options"><Button type="button" variant="outline" onClick={() => chooseTransaction("location")}>{t({ fr: "Louer", en: "Rent" })}</Button><Button type="button" variant="outline" onClick={() => chooseTransaction("vente")}>{t({ fr: "Acheter", en: "Buy" })}</Button></div></>}
-        {step === 1 && <><h3>{t({ fr: "Dans quel quartier ?", en: "Which area?" })}</h3><div className="guided-search-options">{districts.map((item) => <Button key={item} type="button" variant="outline" onClick={() => { setDistrict(item); setStep(2); }}>{item}</Button>)}<Button type="button" variant="outline" onClick={() => { setDistrict(""); setStep(2); }}>{t(allAreas)}</Button></div></>}
+        {step === 1 && <><h3>{t({ fr: "Dans quel quartier ?", en: "Which area?" })}</h3><div className="guided-search-options">{delegations.map((item) => <Button key={item} type="button" variant="outline" onClick={() => { setDistrict(item); setStep(2); }}>{item}</Button>)}<Button type="button" variant="outline" onClick={() => { setDistrict(""); setStep(2); }}>{t(allAreas)}</Button></div></>}
         {step === 2 && <><h3>{t({ fr: "De combien de pièces avez-vous besoin ?", en: "How many rooms do you need?" })}</h3><div className="guided-search-options guided-search-options-many">{[2, 3, 4, 5, 6].map((item) => <Button key={item} type="button" variant="outline" onClick={() => { setRooms(item); setStep(3); }}>{item}+</Button>)}</div></>}
         {step === 3 && <><h3>{t({ fr: "Quel est votre budget maximum ?", en: "What is your maximum budget?" })}</h3><SelectField variant="large" className="guided-search-budget" label={t({ fr: "Budget en TND", en: "Budget in TND" })} value={budget ? String(budget) : ""} placeholder={t({ fr: "Choisir un budget", en: "Choose a budget" })} onValueChange={(value) => launchSearch(Number(value))} options={budgets.map((item) => ({ value: String(item), label: formatAmount(item, lang) }))} /><Button type="button" variant="link" className="mt-4" onClick={() => launchSearch(0)}>{t({ fr: "Voir tous les biens, sans limite de budget", en: "See all properties, with no budget limit" })}</Button></>}
       </div>

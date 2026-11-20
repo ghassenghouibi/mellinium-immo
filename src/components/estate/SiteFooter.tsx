@@ -1,14 +1,16 @@
 import { Link } from "@tanstack/react-router";
-import { Clock, Mail, MapPin } from "lucide-react";
+import { Clock, Heart, Mail, MapPin } from "lucide-react";
 import logo from "@/assets/brand/mellinium-logo-housing.png";
 import { agency } from "@/lib/agency";
 import { approach } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
-import { districts } from "@/lib/properties";
+import { useCatalog } from "@/lib/catalog";
 import { PhoneContact, SocialLinks, SocialRail, WhatsAppFloat } from "./SocialLinks";
 
 export function SiteFooter() {
   const { t } = useI18n();
+  const { rentalPlaces, places } = useCatalog();
+  const rentals = new Set(rentalPlaces.map((group) => group.delegation));
   return (
     <footer className="border-t border-border bg-panel px-5 pb-8 pt-16 md:px-10 md:pt-20">
       <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-2 lg:grid-cols-[1.3fr_.8fr_.8fr_1.1fr]">
@@ -32,7 +34,7 @@ export function SiteFooter() {
         <div>
           <p className="eyebrow text-primary">{t({ fr: "Quartiers", en: "Areas" })}</p>
           <ul className="mt-5 space-y-3 text-sm">
-            {districts.map((district) => <li key={district}><Link to="/biens" search={{ transaction: "location", district }} className="hover:text-primary">{district}</Link></li>)}
+            {places.map(({ delegation: district }) => <li key={district}><Link to="/biens" search={{ transaction: rentals.has(district) ? "location" : "vente", district }} className="hover:text-primary">{district}</Link></li>)}
           </ul>
         </div>
         <div>
@@ -48,6 +50,12 @@ export function SiteFooter() {
       <div className="mx-auto mt-14 flex max-w-7xl flex-col justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
         <p>© 2026 {agency.name}. {t({ fr: "Tous droits réservés.", en: "All rights reserved." })}</p>
         <p>{t({ fr: "Mentions légales · Politique de confidentialité", en: "Legal notice · Privacy policy" })}</p>
+        <p>
+          {t({ fr: "Fait avec ", en: "Made with " })}
+          <Heart className="inline h-3 w-3 fill-primary text-primary" aria-label={t({ fr: "amour", en: "love" })} />
+          {t({ fr: " par ", en: " by " })}
+          <a href="https://orioncrm.fr" target="_blank" rel="noreferrer" className="font-semibold text-foreground hover:text-primary">Orion</a>
+        </p>
       </div>
       <SocialRail />
       <WhatsAppFloat />
