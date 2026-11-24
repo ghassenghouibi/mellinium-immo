@@ -124,56 +124,6 @@ export const whyUs = {
   promise: { fr: "Un service local professionnel, discret et fiable — adapté à chaque client.", en: "A professional, discreet and reliable local service — tailored to every client." },
 } as const;
 
-export const areasIntro = {
-  eyebrow: { fr: "Les quartiers couverts", en: "Areas we cover" },
-  title: { fr: "Les quartiers résidentiels", en: "Premium residential areas" },
-  accent: { fr: "prisés du Grand Tunis.", en: "of Greater Tunis." },
-  text: {
-    fr: "Mellinium Immobilière intervient principalement dans les banlieues nord du Grand Tunis, avec des biens résidentiels soigneusement sélectionnés dans les quartiers les plus recherchés de la capitale.",
-    en: "Mellinium Immobilière operates primarily across the Northern suburbs of Greater Tunis, offering carefully selected residential properties in some of the capital’s most sought-after areas.",
-  },
-  note: {
-    fr: "Notre présence locale et notre connaissance de ces quartiers nous permettent d’orienter les clients internationaux et diplomatiques vers les emplacements qui conviennent le mieux à leurs besoins professionnels et personnels.",
-    en: "Our local presence and knowledge of these areas allow us to guide international and diplomatic clients toward locations that best suit their professional and personal needs.",
-  },
-  motto: { fr: "L’emplacement compte.", en: "Location matters." },
-  mottoSub: { fr: "Nous vous aidons à trouver le lieu où vous sentir chez vous.", en: "We help you find the right place to call home." },
-} as const;
-
-export const diplomatic = {
-  eyebrow: { fr: "Clients diplomatiques & internationaux", en: "Diplomatic & international client services" },
-  title: { fr: "Un accompagnement logement", en: "Personalized housing" },
-  accent: { fr: "personnalisé en Tunisie.", en: "assistance in Tunisia." },
-  paragraphs: [
-    {
-      fr: "Nous savons que les clients diplomatiques et internationaux ont des attentes spécifiques lorsqu’ils cherchent un logement en Tunisie.",
-      en: "We understand that diplomatic and international clients have specific expectations when looking for accommodation in Tunisia.",
-    },
-    {
-      fr: "Nous proposons un service dédié et discret, conçu pour simplifier la recherche de logement et offrir des solutions soigneusement sélectionnées.",
-      en: "We offer a dedicated and discreet service designed to simplify the housing process and provide carefully selected solutions.",
-    },
-  ] satisfies L[],
-  listTitle: { fr: "Nos services comprennent", en: "Our services include" },
-  list: [
-    { fr: "Locations résidentielles meublées et non meublées", en: "Furnished & unfurnished residential rentals" },
-    { fr: "Logement résidentiel de longue durée", en: "Long-term residential accommodation" },
-    { fr: "Sélection de biens selon des exigences précises", en: "Property selection based on specific requirements" },
-    { fr: "Organisation de visites privées", en: "Organization of private property visits" },
-    { fr: "Communication professionnelle avec les propriétaires", en: "Professional communication with property owners" },
-    { fr: "Assistance dans la négociation des loyers", en: "Assistance with rental negotiations" },
-    { fr: "Opportunités d’achat résidentiel", en: "Residential property purchase opportunities" },
-    { fr: "Accompagnement local tout au long de la relocation", en: "Local guidance throughout the relocation process" },
-    { fr: "Suivi continu si nécessaire", en: "Continued follow-up when required" },
-  ] satisfies L[],
-  priorityTitle: { fr: "Notre priorité", en: "Our priority" },
-  priority: {
-    fr: "Offrir une expérience de logement fluide, discrète et efficace, dans le respect de la vie privée, des exigences et de l’agenda professionnel de chaque client.",
-    en: "To provide a smooth, discreet and efficient housing experience, while respecting each client’s privacy, requirements and professional schedule.",
-  },
-  closing: { fr: "Un partenaire local pour une installation sans accroc en Tunisie.", en: "A local partner for a seamless experience in Tunisia." },
-} as const;
-
 export const closing = {
   eyebrow: { fr: "Au plaisir de collaborer", en: "Looking forward to working together" },
   paragraphs: [

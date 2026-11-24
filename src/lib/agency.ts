@@ -56,8 +56,6 @@ export const mainNavigation = [
   { label: { fr: "Louer", en: "Rent" }, to: "/biens", search: { transaction: "location" }, description: { fr: "Locations meublées et non meublées", en: "Furnished and unfurnished rentals" } },
   { label: { fr: "Acheter", en: "Buy" }, to: "/biens", search: { transaction: "vente" }, description: { fr: "Une sélection de biens résidentiels à vendre", en: "A curated selection of homes for sale" } },
   { label: { fr: "Services", en: "Services" }, to: "/", hash: "services", description: { fr: "Location, vente, relocation et gestion", en: "Rental, sales, relocation and management" } },
-  { label: { fr: "Diplomatie", en: "Diplomatic" }, to: "/", hash: "diplomatie", description: { fr: "Clients diplomatiques et internationaux", en: "Diplomatic & international clients" } },
-  { label: { fr: "Quartiers", en: "Areas" }, to: "/", hash: "quartiers", description: { fr: "Les banlieues nord du Grand Tunis", en: "The Northern suburbs of Greater Tunis" } },
   { label: { fr: "L’équipe", en: "Team" }, to: "/", hash: "equipe", description: { fr: "Vos interlocuteurs à La Marsa", en: "Your local contacts in La Marsa" } },
   { label: { fr: "Contact", en: "Contact" }, to: "/", hash: "contact", description: { fr: "Parlons de votre installation", en: "Let’s talk about your move" } },
 ] as const;

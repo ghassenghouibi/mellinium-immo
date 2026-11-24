@@ -72,15 +72,3 @@ export function SocialRail() {
     </aside>
   );
 }
-
-/** Bouton WhatsApp flottant, présent sur toutes les pages. */
-export function WhatsAppFloat() {
-  const { t } = useI18n();
-  const label = t({ fr: "Écrivez-nous sur WhatsApp", en: "Chat with us on WhatsApp" });
-  return (
-    <a href={whatsappHref} target="_blank" rel="noreferrer" className="whatsapp-float" aria-label={label} title={label}>
-      <SocialIcon id="whatsapp" className="h-6 w-6" />
-      <span className="whatsapp-float-label">{t({ fr: "WhatsApp", en: "WhatsApp" })}</span>
-    </a>
-  );
-}

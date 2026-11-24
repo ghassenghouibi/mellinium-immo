@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { ArrowRight, ArrowUpRight, ChevronDown, Clock, Mail, MapPin, Menu, MessageCircle, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import logo from "@/assets/brand/mellinium-logo-housing.png";
@@ -81,6 +81,15 @@ export function SiteHeader() {
 
   const close = () => setOpen(false);
 
+  // Le logo ramène en haut de page, y compris quand on est déjà sur l’accueil (lien vers la même adresse).
+  const pathname = useLocation({ select: (location) => location.pathname });
+  const backToTop = () => {
+    close();
+    if (pathname !== "/") return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" }));
+  };
+
   return (
     <>
       <div className="site-topbar hidden px-5 py-2 md:block md:px-10">
@@ -95,7 +104,7 @@ export function SiteHeader() {
 
       <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
         <div className="relative mx-auto flex max-w-7xl items-stretch justify-between gap-6 px-5 md:px-10">
-          <Link to="/" aria-label={t({ fr: "Accueil Mellinium Immobilière", en: "Mellinium Immobilière home" })} className="shrink-0 self-center py-3">
+          <Link to="/" onClick={backToTop} aria-label={t({ fr: "Accueil Mellinium Immobilière", en: "Mellinium Immobilière home" })} className="shrink-0 self-center py-3">
             <img src={logo} alt="Mellinium Immobilière" className="site-header-logo object-contain" />
           </Link>
 
@@ -135,7 +144,7 @@ export function SiteHeader() {
         <div className="mobile-menu lg:grid-cols-[1.25fr_.75fr]" role="dialog" aria-modal="true" aria-label={t({ fr: "Menu principal", en: "Main menu" })}>
           <div className="flex flex-col px-5 py-5 md:px-12 md:py-8">
             <div className="flex items-center justify-between gap-4">
-              <Link to="/" onClick={close}><img src={logo} alt="Mellinium Immobilière" className="h-14 w-auto" /></Link>
+              <Link to="/" onClick={backToTop}><img src={logo} alt="Mellinium Immobilière" className="h-14 w-auto" /></Link>
               <div className="flex items-center gap-3">
                 <LanguageSwitch />
                 <Button variant="outline" className="h-11 gap-2 rounded-full px-4" aria-label={t({ fr: "Fermer le menu", en: "Close menu" })} onClick={close}><X /><span className="hidden text-xs font-semibold uppercase tracking-[.14em] sm:inline">{t({ fr: "Fermer", en: "Close" })}</span></Button>

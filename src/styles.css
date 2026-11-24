@@ -277,6 +277,8 @@
 .district-row strong { font-family: var(--display-font); font-weight: 500; font-size: 1.75rem; line-height: 1.1; }
 .rental-track { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(17rem, 80%); gap: 1.25rem; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 1.25rem; scrollbar-width: thin; scrollbar-color: var(--primary) transparent; }
 .rental-track > * { scroll-snap-align: start; }
+.rental-track:focus-visible { outline: 2px solid var(--primary); outline-offset: 6px; }
+.listing-track-in { animation: search-unfold 520ms cubic-bezier(.2,.7,.2,1) both; }
 .step-number { font-family: var(--display-font); font-size: 3.25rem; line-height: 1; color: color-mix(in oklab, var(--menu-foreground) 45%, transparent); }
 .testimonial-card { border: 1px solid var(--border); background: var(--card); padding: 2rem; }
 .depth-photo { overflow: hidden; }
@@ -385,9 +387,6 @@
 .social-dot[data-network="instagram"]:hover { background: linear-gradient(45deg, var(--instagram-a), var(--instagram-b) 50%, var(--instagram-c)); }
 .social-dot-light { border-color: color-mix(in oklab, var(--on-image) 45%, transparent); background: color-mix(in oklab, var(--ink) 30%, transparent); color: var(--on-image); backdrop-filter: blur(8px); }
 
-.whatsapp-float { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 45; display: flex; align-items: center; justify-content: center; gap: .6rem; height: 3.5rem; min-width: 3.5rem; border-radius: 999px; background: var(--whatsapp); color: var(--on-image); padding: 0 1rem; box-shadow: 0 14px 36px color-mix(in oklab, var(--whatsapp-deep) 45%, transparent); transition: transform 300ms ease, box-shadow 300ms ease; animation: rise-in 700ms 1.2s cubic-bezier(.2,.7,.2,1) both; }
-.whatsapp-float:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 20px 44px color-mix(in oklab, var(--whatsapp-deep) 55%, transparent); }
-.whatsapp-float-label { display: none; font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 
 /* ——— À propos, pourquoi nous ——— */
 .commitment-card { position: relative; border: 1px solid color-mix(in oklab, var(--primary) 35%, var(--border)); background: color-mix(in oklab, var(--primary) 5%, var(--card)); padding: 1.75rem 1.75rem 1.75rem 2rem; }
@@ -531,8 +530,6 @@
 @media (min-width: 1400px) { .social-rail { display: flex; } }
 
 @media (min-width: 768px) {
-  .whatsapp-float { padding: 0 1.35rem; }
-  .whatsapp-float-label { display: inline; }
   .direct-search { grid-template-columns: minmax(0, 1.6fr) minmax(0, .8fr) minmax(0, 1fr); align-items: stretch; }
   .direct-search-transaction { grid-column: 1 / -1; }
   .direct-search-hint { display: inline-flex; }
@@ -552,7 +549,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scroll-cue, .hero-film-scroll, .hero-film-place, .rise-in, .direct-search, .guided-search-stage, .property-detail-intro, .property-detail-cover, .lightbox, .lightbox-overlay, .mobile-menu, .mobile-menu-link, .mobile-menu-photo img, .nav-item:hover .mega-panel, .whatsapp-float, .social-rail { animation: none; }
+  .scroll-cue, .listing-track-in, .hero-film-scroll, .hero-film-place, .rise-in, .direct-search, .guided-search-stage, .property-detail-intro, .property-detail-cover, .lightbox, .lightbox-overlay, .mobile-menu, .mobile-menu-link, .mobile-menu-photo img, .nav-item:hover .mega-panel, .social-rail { animation: none; }
   .team-card, .team-photo img, .ds-segmented-thumb, .social-rail-link span { transition: none; }
   .reveal-section, .stagger-grid > * { opacity: 1; transform: none; transition: none; }
   .property-card, .service-card, .depth-photo img, .property-card img { transition: none; }

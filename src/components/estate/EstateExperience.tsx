@@ -1,24 +1,22 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Check, Clock, Compass, Eye, Globe2, Handshake, HeartHandshake, Home, KeyRound, Lock, Mail, MapPin, Search, ShieldCheck, Sparkles, Timer, UserCheck, Wrench, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Compass, Eye, Globe2, Handshake, HeartHandshake, Home, KeyRound, Lock, Mail, MapPin, Search, ShieldCheck, Sparkles, Timer, UserCheck, Wrench, Zap } from "lucide-react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import entree from "@/assets/tour/02-entree.jpg";
-import salon from "@/assets/tour/03-salon.jpg";
 import piscine from "@/assets/tour/07-piscine.jpg";
-import laMarsa from "@/assets/tour/08-la-marsa.jpg";
 import { Button } from "@/components/ui/button";
 import { agency, whatsappHref } from "@/lib/agency";
-import { about, approach, areasIntro, closing, diplomatic, services, servicesIntro, whyUs, type ServiceId } from "@/lib/content";
+import { about, approach, closing, services, servicesIntro, whyUs, type ServiceId } from "@/lib/content";
 import { useCatalog } from "@/lib/catalog";
 import { sendContactRequest } from "@/lib/contact";
 import { useI18n, type L } from "@/lib/i18n";
-import { areas, type PropertyTransaction } from "@/lib/properties";
+import { type PropertyTransaction } from "@/lib/properties";
 import { team } from "@/lib/team";
 import { GuidedSearch } from "./GuidedSearch";
 import { HeroFilm } from "./HeroFilm";
 import { PropertyCard } from "./PropertyCard";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
-import { SelectField, TextAreaField, TextField } from "./fields";
+import { SegmentedControl, SelectField, TextAreaField, TextField } from "./fields";
 import { PhoneContact, SocialIcon } from "./SocialLinks";
 
 const serviceLinks: Record<ServiceId, { icon: typeof Home; cta: L; to: "/" | "/biens"; search?: { transaction: "vente" | "location" }; hash?: string }> = {
@@ -26,7 +24,7 @@ const serviceLinks: Record<ServiceId, { icon: typeof Home; cta: L; to: "/" | "/b
   sales: { icon: Home, cta: { fr: "Voir les biens à vendre", en: "See homes for sale" }, to: "/biens", search: { transaction: "vente" } },
   search: { icon: Search, cta: { fr: "Construire ma recherche", en: "Build my search" }, to: "/", hash: "chercher" },
   visits: { icon: Handshake, cta: { fr: "Organiser une visite", en: "Arrange a visit" }, to: "/", hash: "contact" },
-  relocation: { icon: Globe2, cta: { fr: "Préparer mon installation", en: "Plan my move" }, to: "/", hash: "diplomatie" },
+  relocation: { icon: Globe2, cta: { fr: "Préparer mon installation", en: "Plan my move" }, to: "/", hash: "contact" },
   management: { icon: Wrench, cta: { fr: "Confier mon bien", en: "Entrust my property" }, to: "/", hash: "contact" },
 };
 
@@ -35,7 +33,11 @@ const reasonIcons = [Compass, Sparkles, Timer, Handshake, Eye, HeartHandshake];
 
 export function EstateExperience() {
   const { t } = useI18n();
-  const rentalTrack = useRef<HTMLDivElement>(null);
+  const listingTrack = useRef<HTMLDivElement>(null);
+  const { sale: saleProperties, rental: rentalProperties } = useCatalog();
+  // Ouvre sur les locations, sauf si seules des ventes sont publiées.
+  const [transaction, setTransaction] = useState<PropertyTransaction>(() => (rentalProperties.length || !saleProperties.length ? "location" : "vente"));
+  const [trackEdges, setTrackEdges] = useState({ start: true, end: true });
 
   useEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -46,13 +48,30 @@ export function EstateExperience() {
     return () => observer.disconnect();
   }, []);
 
-  const scrollRentals = (direction: 1 | -1) => {
-    const track = rentalTrack.current;
-    if (track) track.scrollBy({ left: direction * track.clientWidth * 0.8, behavior: "smooth" });
+  const isRental = transaction === "location";
+  const listings = isRental ? rentalProperties : saleProperties;
+
+  // Désactive les flèches aux extrémités du carrousel et les masque quand tout tient à l’écran.
+  useEffect(() => {
+    const track = listingTrack.current;
+    if (!track) return;
+    const update = () => setTrackEdges({ start: track.scrollLeft <= 4, end: track.scrollLeft + track.clientWidth >= track.scrollWidth - 4 });
+    update();
+    track.addEventListener("scroll", update, { passive: true });
+    const resize = new ResizeObserver(update);
+    resize.observe(track);
+    return () => { track.removeEventListener("scroll", update); resize.disconnect(); };
+  }, [transaction, listings.length]);
+
+  const scrollListings = (direction: 1 | -1) => {
+    const track = listingTrack.current;
+    if (!track) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    track.scrollBy({ left: direction * track.clientWidth * 0.8, behavior: reduceMotion ? "auto" : "smooth" });
   };
 
-  const { sale: saleProperties, rental: rentalProperties } = useCatalog();
-  const [featuredSale, ...otherSales] = saleProperties;
+  const transactionLabel = (value: PropertyTransaction) => t(value === "location" ? { fr: "À louer", en: "For rent" } : { fr: "À vendre", en: "For sale" });
+  const scrollable = !(trackEdges.start && trackEdges.end);
 
   return (
     <div className="bg-background text-foreground">
@@ -60,6 +79,39 @@ export function EstateExperience() {
       <main className="overflow-x-clip">
         {/* ——— Accueil : film des quartiers ——— */}
         <HeroFilm />
+
+        {/* ——— Biens à la une : locations et ventes ——— */}
+        <section id="biens" className="scroll-mt-24 px-5 py-24 md:px-10 md:py-32">
+          <div data-reveal className="reveal-section mx-auto max-w-7xl">
+            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+              <div>
+                <p className="eyebrow eyebrow-rule text-primary">{t(isRental ? { fr: "Biens à la une · À louer", en: "Featured · For rent" } : { fr: "Biens à la une · À vendre", en: "Featured · For sale" })}</p>
+                <h2 className="section-title mt-5">{isRental ? <>{t({ fr: "Meublé ou non meublé,", en: "Furnished or unfurnished," })}<br /><em>{t({ fr: "prêt à vivre.", en: "ready to live in." })}</em></> : <>{t({ fr: "Investir ou s’établir", en: "Invest or settle" })}<br /><em>{t({ fr: "durablement en Tunisie.", en: "long-term in Tunisia." })}</em></>}</h2>
+                <p className="mt-5 max-w-xl leading-7 text-muted-foreground">{t(isRental ? { fr: "Des locations de longue durée soigneusement sélectionnées dans les quartiers résidentiels prisés, selon vos exigences, votre budget et votre mode de vie.", en: "Carefully selected long-term rentals in premium residential areas, according to your requirements, budget and lifestyle." } : { fr: "Villas, appartements et terrains à vendre, sélectionnés pour un investissement sûr ou une installation durable.", en: "Villas, apartments and land for sale, selected for a sound investment or a lasting move." })}</p>
+              </div>
+              <SegmentedControl className="w-full shrink-0 sm:w-auto" label={t({ fr: "Afficher les biens", en: "Show properties" })} value={transaction} onChange={setTransaction} options={(["location", "vente"] as const).map((value) => ({ value, label: <>{transactionLabel(value)} <span className="opacity-70">· {(value === "location" ? rentalProperties : saleProperties).length}</span></> }))} />
+            </div>
+            {listings.length ? (
+              <>
+                <div key={transaction} ref={listingTrack} role="region" tabIndex={0} aria-label={transactionLabel(transaction)} className="rental-track listing-track-in mt-12">
+                  {listings.map((property) => <PropertyCard key={property.id} property={property} />)}
+                </div>
+                <div className="mt-6 flex items-center justify-between gap-4 border-t border-border pt-6">
+                  <Link to="/biens" search={{ transaction }} className="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.14em] text-primary hover:underline">
+                    {t(isRental ? { fr: `Voir les ${listings.length} locations`, en: `See all ${listings.length} rentals` } : { fr: `Voir les ${listings.length} biens à vendre`, en: `See all ${listings.length} homes for sale` })}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                  {scrollable && (
+                    <div className="hidden items-center gap-3 md:flex">
+                      <Button variant="outline" size="icon" className="rounded-full" disabled={trackEdges.start} aria-label={t({ fr: "Biens précédents", en: "Previous properties" })} onClick={() => scrollListings(-1)}><ArrowLeft /></Button>
+                      <Button variant="outline" size="icon" className="rounded-full" disabled={trackEdges.end} aria-label={t({ fr: "Biens suivants", en: "Next properties" })} onClick={() => scrollListings(1)}><ArrowRight /></Button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : <CatalogEmpty transaction={transaction} />}
+          </div>
+        </section>
 
         {/* ——— Notre approche ——— */}
         <section className="border-y border-border bg-panel px-5 py-12 md:px-10" aria-label={t({ fr: "Notre approche", en: "Our approach" })}>
@@ -114,91 +166,6 @@ export function EstateExperience() {
                   </Link>
                 );
               })}
-            </div>
-          </div>
-        </section>
-
-        {/* ——— Locations ——— */}
-        <section id="location" className="scroll-mt-24 px-5 py-24 md:px-10 md:py-32">
-          <div data-reveal className="reveal-section mx-auto max-w-7xl">
-            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <div><p className="eyebrow eyebrow-rule text-primary">{t({ fr: "Biens à la une · À louer", en: "Featured · For rent" })}</p><h2 className="section-title mt-5">{t({ fr: "Meublé ou non meublé,", en: "Furnished or unfurnished," })}<br /><em>{t({ fr: "prêt à vivre.", en: "ready to live in." })}</em></h2><p className="mt-5 max-w-xl leading-7 text-muted-foreground">{t({ fr: "Des locations de longue durée soigneusement sélectionnées dans les quartiers résidentiels prisés, selon vos exigences, votre budget et votre mode de vie.", en: "Carefully selected long-term rentals in premium residential areas, according to your requirements, budget and lifestyle." })}</p></div>
-              <div className="flex items-center gap-3">
-                <Button variant="outline" size="icon" className="rounded-full" aria-label={t({ fr: "Locations précédentes", en: "Previous rentals" })} onClick={() => scrollRentals(-1)}><ArrowLeft /></Button>
-                <Button variant="outline" size="icon" className="rounded-full" aria-label={t({ fr: "Locations suivantes", en: "Next rentals" })} onClick={() => scrollRentals(1)}><ArrowRight /></Button>
-                <Button asChild className="h-12 rounded-full px-6"><Link to="/biens" search={{ transaction: "location" }}>{t({ fr: "Toutes les locations", en: "All rentals" })} <ArrowRight /></Link></Button>
-              </div>
-            </div>
-            {rentalProperties.length ? <div ref={rentalTrack} className="rental-track mt-14">{rentalProperties.map((property) => <PropertyCard key={property.id} property={property} />)}</div> : <CatalogEmpty transaction="location" />}
-          </div>
-        </section>
-
-        {/* ——— Quartiers ——— */}
-        <section id="quartiers" className="scroll-mt-24 bg-panel">
-          <div data-reveal className="reveal-section grid lg:grid-cols-2">
-            <div className="relative">
-              {/* Photo fixée à la hauteur de l’écran pendant le défilement de la liste des quartiers. */}
-              <div className="depth-photo relative h-[min(34rem,80svh)] lg:sticky lg:top-[4.6rem] lg:h-[calc(100svh-4.6rem)]">
-                <img src={laMarsa} alt={t({ fr: "Sidi Bou Saïd et sa marina face au golfe de Tunis", en: "Sidi Bou Saïd and its marina facing the Gulf of Tunis" })} className="absolute inset-0 h-full w-full object-cover object-[center_62%]" />
-                <div className="absolute inset-0 bg-hero-veil" />
-                <div className="absolute inset-x-0 bottom-0 p-8 text-on-image md:p-12">
-                  <p className="font-display text-5xl leading-none md:text-6xl">{t(areasIntro.motto)}</p>
-                  <p className="mt-3 max-w-md text-sm uppercase tracking-[.16em] text-on-image-muted">{t(areasIntro.mottoSub)}</p>
-                </div>
-              </div>
-            </div>
-            <div className="px-5 py-20 md:px-12 lg:px-16 lg:py-24">
-              <p className="eyebrow eyebrow-rule text-primary"><MapPin className="h-4 w-4" />{t(areasIntro.eyebrow)}</p>
-              <h2 className="section-title mt-5">{t(areasIntro.title)}<br /><em>{t(areasIntro.accent)}</em></h2>
-              <p className="mt-7 max-w-xl leading-8 text-muted-foreground">{t(areasIntro.text)}</p>
-              <div className="mt-10">
-                {areas.map((area, index) => (
-                  <Link key={area.name} to="/biens" search={{ transaction: "location", district: area.name }} className="district-row group" title={t(area.description)}>
-                    <span className="flex items-baseline gap-4"><small className="text-xs text-primary">0{index + 1}</small><span><strong>{area.name}</strong><span className="mt-1 block text-sm text-muted-foreground">{t(area.tagline)}</span></span></span>
-                    <ArrowRight className="h-5 w-5 text-primary transition-transform group-hover:translate-x-1" />
-                  </Link>
-                ))}
-              </div>
-              <p className="mt-8 max-w-xl text-sm leading-7 text-muted-foreground">{t(areasIntro.note)}</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ——— Ventes ——— */}
-        <section id="vente" className="scroll-mt-24 px-5 py-24 md:px-10 md:py-32">
-          <div data-reveal className="reveal-section mx-auto max-w-7xl">
-            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-              <div><p className="eyebrow eyebrow-rule text-primary">{t({ fr: "Biens à la une · À vendre", en: "Featured · For sale" })}</p><h2 className="section-title mt-5">{t({ fr: "Investir ou s’établir", en: "Invest or settle" })}<br /><em>{t({ fr: "durablement en Tunisie.", en: "long-term in Tunisia." })}</em></h2></div>
-              <Button asChild variant="outline" className="h-12 rounded-full px-6"><Link to="/biens" search={{ transaction: "vente" }}>{t({ fr: "Tous les biens à vendre", en: "All homes for sale" })} ({saleProperties.length}) <ArrowRight /></Link></Button>
-            </div>
-            {featuredSale ? (
-              <div className="stagger-grid mt-14 grid gap-7 md:grid-cols-2 lg:grid-cols-3">
-                <PropertyCard property={featuredSale} featured />
-                {otherSales.slice(0, 3).map((property) => <PropertyCard key={property.id} property={property} />)}
-              </div>
-            ) : <CatalogEmpty transaction="vente" />}
-          </div>
-        </section>
-
-        {/* ——— Clients diplomatiques ——— */}
-        <section id="diplomatie" className="scroll-mt-24 bg-menu text-menu-foreground">
-          <div data-reveal className="reveal-section grid lg:grid-cols-[.85fr_1.15fr]">
-            <div className="depth-photo relative min-h-[26rem] lg:min-h-full">
-              <img src={salon} alt={t({ fr: "Salon lumineux d’une résidence meublée", en: "Bright living room of a furnished residence" })} className="absolute inset-0 h-full w-full object-cover" />
-            </div>
-            <div className="px-5 py-20 md:px-12 lg:px-16 lg:py-28">
-              <p className="eyebrow eyebrow-rule text-menu-muted">{t(diplomatic.eyebrow)}</p>
-              <h2 className="section-title mt-5">{t(diplomatic.title)}<br /><em className="!text-[oklch(0.85_0.09_80)]">{t(diplomatic.accent)}</em></h2>
-              <div className="mt-7 max-w-2xl space-y-4 leading-8 text-menu-muted">{diplomatic.paragraphs.map((paragraph) => <p key={paragraph.en}>{t(paragraph)}</p>)}</div>
-              <p className="eyebrow mt-12 text-menu-muted">{t(diplomatic.listTitle)}</p>
-              <ul className="mt-5 grid gap-x-8 sm:grid-cols-2">
-                {diplomatic.list.map((item) => <li key={item.en} className="flex items-start gap-3 border-b border-menu-foreground/15 py-3.5 text-sm"><Check className="mt-0.5 h-4 w-4 shrink-0 text-[oklch(0.85_0.09_80)]" />{t(item)}</li>)}
-              </ul>
-              <div className="mt-12 border-l-2 border-[oklch(0.85_0.09_80)] pl-6">
-                <p className="eyebrow text-menu-muted">{t(diplomatic.priorityTitle)}</p>
-                <p className="mt-3 font-display text-2xl leading-snug md:text-3xl">{t(diplomatic.priority)}</p>
-              </div>
-              <p className="mt-10 text-xs font-semibold uppercase tracking-[.18em] text-menu-muted">{t(diplomatic.closing)}</p>
             </div>
           </div>
         </section>

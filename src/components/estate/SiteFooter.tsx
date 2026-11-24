@@ -4,16 +4,13 @@ import logo from "@/assets/brand/mellinium-logo-housing.png";
 import { agency } from "@/lib/agency";
 import { approach } from "@/lib/content";
 import { useI18n } from "@/lib/i18n";
-import { useCatalog } from "@/lib/catalog";
-import { PhoneContact, SocialLinks, SocialRail, WhatsAppFloat } from "./SocialLinks";
+import { PhoneContact, SocialLinks, SocialRail } from "./SocialLinks";
 
 export function SiteFooter() {
   const { t } = useI18n();
-  const { rentalPlaces, places } = useCatalog();
-  const rentals = new Set(rentalPlaces.map((group) => group.delegation));
   return (
     <footer className="border-t border-border bg-panel px-5 pb-8 pt-16 md:px-10 md:pt-20">
-      <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-2 lg:grid-cols-[1.3fr_.8fr_.8fr_1.1fr]">
+      <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-2 lg:grid-cols-[1.3fr_.8fr_1.1fr]">
         <div>
           <img src={logo} alt="Mellinium Immobilière" className="h-20 w-auto" />
           <p className="eyebrow mt-6 text-primary">{t(agency.tagline)}</p>
@@ -26,15 +23,8 @@ export function SiteFooter() {
           <ul className="mt-5 space-y-3 text-sm">
             <li><Link to="/biens" search={{ transaction: "location" }} className="hover:text-primary">{t({ fr: "Location résidentielle", en: "Residential rental" })}</Link></li>
             <li><Link to="/biens" search={{ transaction: "vente" }} className="hover:text-primary">{t({ fr: "Vente de biens", en: "Property sales" })}</Link></li>
-            <li><Link to="/" hash="diplomatie" className="hover:text-primary">{t({ fr: "Clients diplomatiques", en: "Diplomatic clients" })}</Link></li>
             <li><Link to="/" hash="services" className="hover:text-primary">{t({ fr: "Relocation & gestion", en: "Relocation & management" })}</Link></li>
             <li><Link to="/" hash="equipe" className="hover:text-primary">{t({ fr: "Notre équipe", en: "Our team" })}</Link></li>
-          </ul>
-        </div>
-        <div>
-          <p className="eyebrow text-primary">{t({ fr: "Quartiers", en: "Areas" })}</p>
-          <ul className="mt-5 space-y-3 text-sm">
-            {places.map(({ delegation: district }) => <li key={district}><Link to="/biens" search={{ transaction: rentals.has(district) ? "location" : "vente", district }} className="hover:text-primary">{district}</Link></li>)}
           </ul>
         </div>
         <div>
@@ -58,7 +48,6 @@ export function SiteFooter() {
         </p>
       </div>
       <SocialRail />
-      <WhatsAppFloat />
     </footer>
   );
 }

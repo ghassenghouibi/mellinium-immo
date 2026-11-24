@@ -1,6 +1,6 @@
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown } from "lucide-react";
-import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from "react";
+import { forwardRef, useId, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -92,11 +92,21 @@ type SegmentedControlProps<T extends string> = {
 /** Bascule entre quelques choix exclusifs (Louer / Acheter…), avec un indicateur qui glisse. */
 export function SegmentedControl<T extends string>({ label, value, onChange, options, tone = "default", className }: SegmentedControlProps<T>) {
   const index = Math.max(0, options.findIndex((option) => option.value === value));
+  // Flèches du clavier comme pour un groupe radio natif : un seul arrêt de tabulation, sélection au déplacement.
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+    if (!step) return;
+    event.preventDefault();
+    const next = (index + step + options.length) % options.length;
+    const option = options[next];
+    if (option) onChange(option.value);
+    event.currentTarget.querySelectorAll<HTMLButtonElement>("[role=radio]")[next]?.focus();
+  };
   return (
-    <div role="radiogroup" aria-label={label} className={cn("ds-segmented", tone === "glass" && "ds-segmented-glass", className)} style={{ ["--ds-count" as string]: options.length, ["--ds-index" as string]: index }}>
+    <div role="radiogroup" aria-label={label} onKeyDown={onKeyDown} className={cn("ds-segmented", tone === "glass" && "ds-segmented-glass", className)} style={{ ["--ds-count" as string]: options.length, ["--ds-index" as string]: index }}>
       <span className="ds-segmented-thumb" aria-hidden="true" />
       {options.map((option) => (
-        <button key={option.value} type="button" role="radio" aria-checked={option.value === value} onClick={() => onChange(option.value)} className={cn("ds-segmented-option", option.value === value && "is-active")}>
+        <button key={option.value} type="button" role="radio" aria-checked={option.value === value} tabIndex={option.value === value ? 0 : -1} onClick={() => onChange(option.value)} className={cn("ds-segmented-option", option.value === value && "is-active")}>
           {option.label}
         </button>
       ))}

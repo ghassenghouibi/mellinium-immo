@@ -9,6 +9,9 @@ export const getRouter = () => {
     routeTree,
     context: { queryClient },
     scrollRestoration: true,
+    // Une position par entrée d’historique : chaque nouvelle navigation s’ouvre en haut de page,
+    // seuls Précédent / Suivant rendent la position quittée.
+    getScrollRestorationKey: (location) => location.state.__TSR_key ?? location.href,
     defaultPreloadStaleTime: 0,
   });
 
