@@ -23,7 +23,7 @@ export type Property = {
   id: string;
   /** Référence CRM, absente des biens de démonstration. */
   reference?: string | undefined;
-  /** `closed` : vendu ou loué, la fiche reste consultable mais le bien sort des listes. */
+  /** `closed` : vendu ou loué ; la fiche reste en ligne, marquée d’un bandeau « Vendu » / « Loué ». */
   status?: "available" | "closed" | undefined;
   transaction: PropertyTransaction;
   city: string;
@@ -351,6 +351,12 @@ const compactFormatters: Record<Lang, Intl.NumberFormat> = {
 /** Montant abrégé (« 1,5 M TND ») pour les champs étroits comme la recherche rapide. */
 export function formatCompactAmount(value: number, lang: Lang) {
   return `${compactFormatters[lang].format(value)} TND`;
+}
+
+/** Bandeau d’un bien vendu ou loué, undefined tant qu’il est disponible. */
+export function closedLabel(property: Property) {
+  if (property.status !== "closed") return undefined;
+  return property.transaction === "location" ? { fr: "Loué", en: "Rented" } : { fr: "Vendu", en: "Sold" };
 }
 
 export function formatPrice(property: Property, lang: Lang) {

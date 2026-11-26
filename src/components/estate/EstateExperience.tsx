@@ -34,7 +34,7 @@ const reasonIcons = [Compass, Sparkles, Timer, Handshake, Eye, HeartHandshake];
 export function EstateExperience() {
   const { t } = useI18n();
   const listingTrack = useRef<HTMLDivElement>(null);
-  const { sale: saleProperties, rental: rentalProperties } = useCatalog();
+  const { sale: saleProperties, rental: rentalProperties, saleShowcase, rentalShowcase } = useCatalog();
   // Ouvre sur les locations, sauf si seules des ventes sont publiées.
   const [transaction, setTransaction] = useState<PropertyTransaction>(() => (rentalProperties.length || !saleProperties.length ? "location" : "vente"));
   const [trackEdges, setTrackEdges] = useState({ start: true, end: true });
@@ -49,7 +49,9 @@ export function EstateExperience() {
   }, []);
 
   const isRental = transaction === "location";
-  const listings = isRental ? rentalProperties : saleProperties;
+  // Le carrousel montre aussi les biens vendus / loués (après les disponibles) ; les compteurs, eux, ne comptent que les disponibles.
+  const listings = isRental ? rentalShowcase : saleShowcase;
+  const availableCount = (isRental ? rentalProperties : saleProperties).length;
 
   // Désactive les flèches aux extrémités du carrousel et les masque quand tout tient à l’écran.
   useEffect(() => {
@@ -98,7 +100,7 @@ export function EstateExperience() {
                 </div>
                 <div className="mt-6 flex items-center justify-between gap-4 border-t border-border pt-6">
                   <Link to="/biens" search={{ transaction }} className="group inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.14em] text-primary hover:underline">
-                    {t(isRental ? { fr: `Voir les ${listings.length} locations`, en: `See all ${listings.length} rentals` } : { fr: `Voir les ${listings.length} biens à vendre`, en: `See all ${listings.length} homes for sale` })}
+                    {t(isRental ? { fr: `Voir les ${availableCount} locations`, en: `See all ${availableCount} rentals` } : { fr: `Voir les ${availableCount} biens à vendre`, en: `See all ${availableCount} homes for sale` })}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                   {scrollable && (

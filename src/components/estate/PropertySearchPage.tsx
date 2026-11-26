@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { agency } from "@/lib/agency";
 import { useI18n } from "@/lib/i18n";
 import { useCatalog } from "@/lib/catalog";
-import { featureFilters, formatAmount, matchesPlace, placeName, placeOptions, propertyTypeLabels, rentBudgets, saleBudgets, type PropertyTransaction } from "@/lib/properties";
+import { featureFilters, formatAmount, matchesPlace, placeName, placeOptions, propertyTypeLabels, rentBudgets, saleBudgets, type Property, type PropertyTransaction } from "@/lib/properties";
 import { SegmentedControl, SelectField } from "./fields";
 import { PropertyCard } from "./PropertyCard";
 import { SiteFooter } from "./SiteFooter";
@@ -36,7 +36,7 @@ const intro = {
 export function PropertySearchPage({ search }: { search: PropertySearch }) {
   const navigate = useNavigate();
   const { t, lang } = useI18n();
-  const { properties, rentalPlaces, salePlaces, types: propertyTypes } = useCatalog();
+  const { showcase: properties, rentalPlaces, salePlaces, types: propertyTypes } = useCatalog();
   const transaction = search.transaction ?? "location";
   const district = search.district ?? "";
   const type = search.type ?? "";
@@ -85,12 +85,15 @@ export function PropertySearchPage({ search }: { search: PropertySearch }) {
       (!minArea || property.area >= minArea) &&
       (!featureFilter || featureFilter.matches(property))
     );
-    if (sort === "price-asc") return [...filtered].sort((a, b) => a.price - b.price);
-    if (sort === "price-desc") return [...filtered].sort((a, b) => b.price - a.price);
-    if (sort === "area-desc") return [...filtered].sort((a, b) => b.area - a.area);
+    // Vendus et loués restent après les biens disponibles, quel que soit le tri.
+    const closedLast = (a: Property, b: Property) => Number(a.status === "closed") - Number(b.status === "closed");
+    if (sort === "price-asc") return [...filtered].sort((a, b) => closedLast(a, b) || a.price - b.price);
+    if (sort === "price-desc") return [...filtered].sort((a, b) => closedLast(a, b) || b.price - a.price);
+    if (sort === "area-desc") return [...filtered].sort((a, b) => closedLast(a, b) || b.area - a.area);
     return filtered;
   }, [properties, transaction, district, type, rooms, budget, bedrooms, minArea, feature, sort]);
 
+  const availableCount = results.filter((property) => property.status !== "closed").length;
   const advancedCount = Number(bedrooms > 0) + Number(minArea > 0) + Number(Boolean(feature));
   const reset = () => void navigate({ to: "/biens", search: { transaction }, replace: true, resetScroll: false });
   // Rent and sale budgets differ, so the budget is cleared; every other criterion is kept.
@@ -114,8 +117,8 @@ export function PropertySearchPage({ search }: { search: PropertySearch }) {
   );
 
   const countLabel = lang === "fr"
-    ? `${results.length > 1 ? "biens" : "bien"} ${transaction === "vente" ? "à vendre" : "à louer"}${district ? ` à ${placeName(district)}` : " dans le Grand Tunis"}`
-    : `${results.length === 1 ? "property" : "properties"} ${transaction === "vente" ? "for sale" : "for rent"}${district ? ` in ${placeName(district)}` : " in Greater Tunis"}`;
+    ? `${availableCount > 1 ? "biens" : "bien"} ${transaction === "vente" ? "à vendre" : "à louer"}${district ? ` à ${placeName(district)}` : " dans le Grand Tunis"}`
+    : `${availableCount === 1 ? "property" : "properties"} ${transaction === "vente" ? "for sale" : "for rent"}${district ? ` in ${placeName(district)}` : " in Greater Tunis"}`;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -150,7 +153,7 @@ export function PropertySearchPage({ search }: { search: PropertySearch }) {
         <section className="px-5 py-12 md:px-10 md:py-16">
           <div className="mx-auto max-w-7xl">
             <div className="mb-9 flex flex-wrap items-end justify-between gap-4">
-              <p className="text-sm text-muted-foreground"><strong className="font-display text-3xl text-foreground">{results.length}</strong> {countLabel}</p>
+              <p className="text-sm text-muted-foreground"><strong className="font-display text-3xl text-foreground">{availableCount}</strong> {countLabel}</p>
               <SelectField
                 className="w-60"
                 label={t({ fr: "Trier par", en: "Sort by" })}

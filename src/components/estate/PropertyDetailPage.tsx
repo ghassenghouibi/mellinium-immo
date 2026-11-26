@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { agency, whatsappHref } from "@/lib/agency";
 import { useI18n } from "@/lib/i18n";
 import { useCatalog } from "@/lib/catalog";
-import { formatAmount, formatPrice, getArea, getSimilarProperties, placeValue, propertyTypeLabels, type Property } from "@/lib/properties";
+import { closedLabel, formatAmount, formatPrice, getArea, getSimilarProperties, placeValue, propertyTypeLabels, type Property } from "@/lib/properties";
 import { PhotoLightbox } from "./PhotoLightbox";
 import { PhoneContact, SocialIcon } from "./SocialLinks";
 import { PropertyCard } from "./PropertyCard";
@@ -22,8 +22,9 @@ export function PropertyDetailPage({ property }: { property: Property }) {
   const district = getArea(property);
   const similar = getSimilarProperties(useCatalog().properties, property);
   const isRental = property.transaction === "location";
-  const isClosed = property.status === "closed";
-  const statusLabel = isClosed ? (isRental ? t({ fr: "Loué", en: "Rented" }) : t({ fr: "Vendu", en: "Sold" })) : isRental ? t({ fr: "À louer", en: "For rent" }) : t({ fr: "À vendre", en: "For sale" });
+  const closed = closedLabel(property);
+  const isClosed = Boolean(closed);
+  const statusLabel = closed ? t(closed) : isRental ? t({ fr: "À louer", en: "For rent" }) : t({ fr: "À vendre", en: "For sale" });
 
   const specs = [
     property.area > 0 && { icon: Maximize2, value: `${property.area} m²`, label: t({ fr: "Surface", en: "Surface" }) },
@@ -39,6 +40,12 @@ export function PropertyDetailPage({ property }: { property: Property }) {
         <section className="px-5 pt-8 md:px-10">
           <div className="mx-auto max-w-7xl">
             <Link to="/biens" search={{ transaction: property.transaction }} className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground hover:text-primary"><ArrowLeft className="h-4 w-4" /> {isRental ? t({ fr: "Biens à louer", en: "Homes for rent" }) : t({ fr: "Biens à vendre", en: "Homes for sale" })}</Link>
+            {closed && (
+              <div role="status" className="mt-6 flex flex-col gap-3 border border-primary/40 bg-primary/10 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm"><strong className="mr-2 font-semibold uppercase tracking-[.14em] text-primary">{t(closed)}</strong>{isRental ? t({ fr: "Ce bien a été loué par notre agence et n’est plus disponible.", en: "This home has been rented through our agency and is no longer available." }) : t({ fr: "Ce bien a été vendu par notre agence et n’est plus disponible.", en: "This home has been sold through our agency and is no longer available." })}</p>
+                <Link to="/biens" search={{ transaction: property.transaction }} className="inline-flex shrink-0 items-center gap-2 text-xs font-semibold uppercase tracking-[.14em] text-primary hover:underline">{t({ fr: "Voir les biens disponibles", en: "See available homes" })} <ArrowRight className="h-4 w-4" /></Link>
+              </div>
+            )}
             <div className="property-detail-intro mt-8 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
               <div>
                 <p className="flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4 text-primary" />{property.district}, {property.city} · {t(propertyTypeLabels[property.type].singular)}</p>
@@ -46,8 +53,8 @@ export function PropertyDetailPage({ property }: { property: Property }) {
                 {property.highlight && <p className="mt-3 text-lg italic text-primary">{t(property.highlight)}</p>}
               </div>
               <div className="lg:text-right">
-                <p className="eyebrow text-muted-foreground">{isRental ? t({ fr: "Loyer mensuel", en: "Monthly rent" }) : t({ fr: "Prix de vente", en: "Sale price" })}</p>
-                <p className="mt-2 font-display text-4xl md:text-5xl">{formatPrice(property, lang)}</p>
+                {!isClosed && <p className="eyebrow text-muted-foreground">{isRental ? t({ fr: "Loyer mensuel", en: "Monthly rent" }) : t({ fr: "Prix de vente", en: "Sale price" })}</p>}
+                <p className="mt-2 font-display text-4xl md:text-5xl">{closed ? t(closed) : formatPrice(property, lang)}</p>
                 {!isRental && !isClosed && property.price > 0 && property.area > 0 && <p className="mt-1 text-sm text-muted-foreground">{t({ fr: "soit", en: "i.e." })} {formatAmount(Math.round(property.price / property.area), lang)} / m²</p>}
               </div>
             </div>
@@ -58,9 +65,10 @@ export function PropertyDetailPage({ property }: { property: Property }) {
           <div className="relative mx-auto max-w-7xl overflow-hidden">
             <div className="relative aspect-[4/3] md:aspect-[16/8]">
               <button type="button" onClick={() => setViewerOpen(true)} className="property-cover-button absolute inset-0" aria-label={t({ fr: "Agrandir la photo en plein écran", en: "View photo full screen" })}>
-                <img key={property.gallery[activePhoto]} src={property.gallery[activePhoto]} alt={`${property.name} — photo ${activePhoto + 1} / ${photoCount}`} className="property-detail-cover absolute inset-0 h-full w-full object-cover" />
+                <img key={property.gallery[activePhoto]} src={property.gallery[activePhoto]} alt={`${property.name} — photo ${activePhoto + 1} / ${photoCount}`} className={`property-detail-cover absolute inset-0 h-full w-full object-cover ${isClosed ? "is-closed" : ""}`} />
                 <span className="property-cover-hint"><Expand />{t({ fr: "Plein écran", en: "Full screen" })}</span>
               </button>
+              {closed && <span className="property-closed-ribbon is-large">{t(closed)}</span>}
               <div className="absolute left-4 top-4 flex gap-2">
                 <span className="property-badge">{statusLabel}</span>
                 {property.badge && !isClosed && <span className="property-badge !bg-primary !text-primary-foreground">{t(property.badge)}</span>}
@@ -103,11 +111,17 @@ export function PropertyDetailPage({ property }: { property: Property }) {
             </div>
 
             <aside className="property-visit-panel border border-border p-7 lg:sticky lg:top-28 lg:self-start lg:p-9">
-              <p className="eyebrow text-primary">{isRental ? t({ fr: "Visite & disponibilité", en: "Visit & availability" }) : t({ fr: "Visite privée", en: "Private visit" })}</p>
-              <h3 className="mt-4 font-display text-4xl">{t({ fr: "Découvrir ce bien", en: "Discover this home" })}</h3>
-              <p className="mt-4 text-sm leading-7 text-muted-foreground">{t({ fr: "Nous organisons une visite privée, vous transmettons le dossier complet et assurons la communication avec le propriétaire, en toute discrétion.", en: "We organize a private visit, send you the full details and handle communication with the owner, discreetly." })}</p>
+              {closed ? <>
+                <p className="eyebrow text-primary">{t(closed)}</p>
+                <h3 className="mt-4 font-display text-4xl">{t({ fr: "Un bien similaire ?", en: "Looking for a similar home?" })}</h3>
+                <p className="mt-4 text-sm leading-7 text-muted-foreground">{t({ fr: "Ce bien n’est plus disponible. Confiez-nous votre recherche : nous vous proposons des biens comparables, y compris ceux proposés en toute discrétion.", en: "This home is no longer available. Entrust us with your search: we will suggest comparable homes, including those offered discreetly." })}</p>
+              </> : <>
+                <p className="eyebrow text-primary">{isRental ? t({ fr: "Visite & disponibilité", en: "Visit & availability" }) : t({ fr: "Visite privée", en: "Private visit" })}</p>
+                <h3 className="mt-4 font-display text-4xl">{t({ fr: "Découvrir ce bien", en: "Discover this home" })}</h3>
+                <p className="mt-4 text-sm leading-7 text-muted-foreground">{t({ fr: "Nous organisons une visite privée, vous transmettons le dossier complet et assurons la communication avec le propriétaire, en toute discrétion.", en: "We organize a private visit, send you the full details and handle communication with the owner, discreetly." })}</p>
+              </>}
               <ul className="mt-6 space-y-3">{property.features.slice(0, 3).map((feature) => <li key={feature.en} className="flex items-center gap-3 text-sm"><Check className="h-4 w-4 text-primary" />{t(feature)}</li>)}</ul>
-              <Button asChild className="mt-8 h-12 w-full rounded-full"><a href={`mailto:${agency.email}?subject=${encodeURIComponent(`${t({ fr: "Visite", en: "Visit" })} — ${property.name} (${property.district})`)}`}>{t({ fr: "Organiser une visite", en: "Arrange a visit" })} <ArrowRight /></a></Button>
+              <Button asChild className="mt-8 h-12 w-full rounded-full"><a href={`mailto:${agency.email}?subject=${encodeURIComponent(`${isClosed ? t({ fr: "Bien similaire", en: "Similar home" }) : t({ fr: "Visite", en: "Visit" })} — ${property.name} (${property.district})`)}`}>{isClosed ? t({ fr: "Confier ma recherche", en: "Entrust my search" }) : t({ fr: "Organiser une visite", en: "Arrange a visit" })} <ArrowRight /></a></Button>
               <Button asChild variant="outline" className="mt-3 h-12 w-full rounded-full"><a href={`${whatsappHref}?text=${encodeURIComponent(`${t({ fr: "Bonjour, je suis intéressé(e) par", en: "Hello, I am interested in" })} ${property.name} (${property.district}).`)}`} target="_blank" rel="noreferrer"><SocialIcon id="whatsapp" /> WhatsApp</a></Button>
               <div className="mt-5 grid gap-3 border-t border-border pt-5 text-sm">{agency.phones.map((phone) => <PhoneContact key={phone.href} phone={phone} className="justify-between" />)}</div>
               <p className="mt-5 text-center text-xs text-muted-foreground">{t({ fr: "Référence :", en: "Reference:" })} {property.reference ?? property.id.toUpperCase().slice(0, 12)}</p>

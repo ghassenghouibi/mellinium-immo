@@ -1,24 +1,26 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Bath, BedDouble, Images, MapPin, Maximize2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import { formatPrice, type Property } from "@/lib/properties";
+import { closedLabel, formatPrice, type Property } from "@/lib/properties";
 
 export function PropertyCard({ property, featured = false }: { property: Property; featured?: boolean }) {
   const { t, lang } = useI18n();
   const isRental = property.transaction === "location";
+  const closed = closedLabel(property);
   return (
     <Link
       to="/biens/$propertyId"
       params={{ propertyId: property.id }}
       preload="intent"
-      className={`property-card group ${featured ? "md:col-span-2 lg:col-span-full lg:grid lg:grid-cols-[1.35fr_1fr]" : ""}`}
+      className={`property-card group ${closed ? "is-closed" : ""} ${featured ? "md:col-span-2 lg:col-span-full lg:grid lg:grid-cols-[1.35fr_1fr]" : ""}`}
     >
       <div className={`relative overflow-hidden ${featured ? "aspect-[4/3] lg:aspect-auto lg:min-h-[30rem]" : "aspect-[4/3]"}`}>
         <img src={property.image} alt={property.name} className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-property-overlay" />
+        {closed && <span className="property-closed-ribbon">{t(closed)}</span>}
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
           <span className="property-badge">{isRental ? t({ fr: "À louer", en: "For rent" }) : t({ fr: "À vendre", en: "For sale" })}</span>
-          {property.badge && <span className="property-badge !bg-primary !text-primary-foreground">{t(property.badge)}</span>}
+          {property.badge && !closed && <span className="property-badge !bg-primary !text-primary-foreground">{t(property.badge)}</span>}
         </div>
         <span className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full bg-ink/45 px-3 py-1.5 text-[11px] text-on-image backdrop-blur-md"><Images className="h-3.5 w-3.5" />{property.gallery.length}</span>
       </div>
@@ -35,7 +37,7 @@ export function PropertyCard({ property, featured = false }: { property: Propert
           {property.bedrooms > 0 && <span className="flex items-center gap-1.5"><BedDouble className="h-4 w-4" />{property.bedrooms} {t({ fr: "ch.", en: "bd" })}</span>}
           {property.bathrooms > 0 && <span className="flex items-center gap-1.5"><Bath className="h-4 w-4" />{property.bathrooms} {t({ fr: "sdb", en: "ba" })}</span>}
         </div>
-        <p className="mt-auto pt-5 text-lg font-semibold text-foreground">{formatPrice(property, lang)}</p>
+        <p className={`mt-auto pt-5 text-lg font-semibold ${closed ? "text-primary" : "text-foreground"}`}>{closed ? t(closed) : formatPrice(property, lang)}</p>
       </div>
     </Link>
   );

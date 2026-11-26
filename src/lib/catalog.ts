@@ -34,11 +34,17 @@ export type Catalog = ReturnType<typeof buildCatalog>;
 
 function buildCatalog(all: Property[]) {
   const available = all.filter((property) => property.status !== "closed");
+  // Vendus et loués après les biens disponibles : ils restent visibles, marqués d’un bandeau.
+  const showcase = [...available, ...all.filter((property) => property.status === "closed")];
   return {
-    /** Biens disponibles (vendus et loués exclus). */
+    /** Biens disponibles (vendus et loués exclus) : compteurs, menus, biens similaires. */
     properties: available,
     sale: available.filter((property) => property.transaction === "vente"),
     rental: available.filter((property) => property.transaction === "location"),
+    /** Biens affichés dans les listes : les disponibles d’abord, puis les vendus / loués. */
+    showcase,
+    saleShowcase: showcase.filter((property) => property.transaction === "vente"),
+    rentalShowcase: showcase.filter((property) => property.transaction === "location"),
     types: typesIn(available),
     /** Délégations et localités des biens disponibles, avec les noms du CRM. */
     places: placesIn(available),

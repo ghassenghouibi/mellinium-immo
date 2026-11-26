@@ -291,6 +291,10 @@
 .property-card img { transition: transform 1200ms cubic-bezier(.2,.7,.2,1); }
 .property-card:hover img { transform: scale(1.06); }
 .property-badge { border-radius: 999px; background: color-mix(in oklab, var(--card) 92%, transparent); padding: .4rem .8rem; font-size: .62rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--foreground); backdrop-filter: blur(8px); }
+/* Bien vendu ou loué : bandeau en diagonale sur la photo, photo légèrement éteinte. */
+.property-closed-ribbon { position: absolute; top: 1.7rem; right: -3.4rem; z-index: 1; width: 13rem; transform: rotate(45deg); background: var(--primary); padding: .55rem 0; text-align: center; font-size: .68rem; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; color: var(--primary-foreground); box-shadow: 0 10px 24px color-mix(in oklab, var(--ink) 25%, transparent); pointer-events: none; }
+.property-closed-ribbon.is-large { top: 2.6rem; right: -4.6rem; width: 19rem; padding: .8rem 0; font-size: .85rem; }
+.property-card.is-closed img, .property-detail-cover.is-closed { filter: grayscale(.4) brightness(.94); }
 .stagger-grid > * { opacity: 0; transform: translateY(50px); transition: opacity 900ms ease, transform 1000ms cubic-bezier(.2,.7,.2,1); }
 .is-visible .stagger-grid > * { opacity: 1; transform: translateY(0); }
 .is-visible .stagger-grid > *:nth-child(2) { transition-delay: 120ms; }
